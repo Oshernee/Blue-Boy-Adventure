@@ -6,25 +6,24 @@ import java.io.*;
 
 public class Config {
     GamePanel gp;
-    public Config(GamePanel gp)
-    {
+    private static Config instance;
+
+    private Config(GamePanel gp) {
         this.gp = gp;
+    }
+    public static Config getInstance(GamePanel gp) {
+        if (instance == null) {
+            instance = new Config(gp);
+        }
+        return instance;
     }
 
     public void saveConfig()
     {
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter("config.txt"));
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter("config.txt"))) {
 
             // Full Screen
-            if(gp.fullScreenOn == true)
-            {
-                bw.write("On");
-            }
-            if(gp.fullScreenOn == false)
-            {
-                bw.write("Off");
-            }
+            bw.write(gp.fullScreenOn ? "On" : "Off");
             bw.newLine();
 
             //Music Volume
@@ -35,8 +34,6 @@ public class Config {
             bw.write(String.valueOf(gp.se.volumeScale));
             bw.newLine();
 
-            bw.close();
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -44,20 +41,12 @@ public class Config {
 
     public void loadConfig()
     {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader("config.txt"));
+        try(BufferedReader br = new BufferedReader(new FileReader("config.txt"))) {
 
             String s = br.readLine();
 
             //Full Screen
-            if(s.equals("On"))
-            {
-                gp.fullScreenOn = true;
-            }
-            if(s.equals("Off"))
-            {
-                gp.fullScreenOn = false;
-            }
+            gp.fullScreenOn = s.equals("On");
 
             //Music Volume
             s = br.readLine();
@@ -66,9 +55,6 @@ public class Config {
             //SE Volume
             s = br.readLine();
             gp.se.volumeScale = Integer.parseInt(s);
-
-            br.close();
-
 
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
