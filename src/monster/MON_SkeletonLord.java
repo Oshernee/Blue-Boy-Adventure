@@ -10,7 +10,7 @@ import object.OBJ_ManaCrystal;
 
 import java.util.Random;
 
-public class MON_SkeletonLord extends Entity {
+public class MON_SkeletonLord extends Monster {
     GamePanel gp; // cuz of different package
     public static final String monName = "Skeleton Lord";
     public MON_SkeletonLord(GamePanel gp) {

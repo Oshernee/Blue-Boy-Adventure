@@ -9,7 +9,7 @@ import object.OBJ_Rock;
 
 import java.util.Random;
 
-public class MON_Orc extends Entity {
+public class MON_Orc extends Monster {
     GamePanel gp; // cuz of different package
     public MON_Orc(GamePanel gp) {
         super(gp);
@@ -113,5 +113,10 @@ public class MON_Orc extends Entity {
         {
             dropItem(new OBJ_ManaCrystal(gp));
         }
+    }
+
+    @Override
+    public void setDialogue() {
+
     }
 }

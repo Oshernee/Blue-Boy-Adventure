@@ -4,6 +4,8 @@ import data.Progress;
 import entity.NPC_BigRock;
 import entity.NPC_Merchant;
 import entity.NPC_OldMan;
+import factory.MonsterFactory;
+import factory.SlimeFactory;
 import monster.*;
 import object.*;
 import tile_interactive.IT_DestructibleWall;
@@ -138,96 +140,92 @@ public class AssetSetter {
         i++;
 
     }
-    public void setMonster()
-    {
+    public void setMonster() {
         int mapNum = 0;
         int i = 0;
-        gp.monster[mapNum][i] = new MON_GreenSlime(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*23;
-        gp.monster[mapNum][i].worldY = gp.tileSize*36;
+
+        gp.monster[mapNum][i] = SlimeFactory.createSlime(gp, "GreenSlime");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 23;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 36;
         i++;
 
-        gp.monster[mapNum][i] = new MON_GreenSlime(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*23;
-        gp.monster[mapNum][i].worldY = gp.tileSize*37;
+        gp.monster[mapNum][i] = SlimeFactory.createSlime(gp, "GreenSlime");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 23;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 37;
         i++;
 
-        gp.monster[mapNum][i] = new MON_GreenSlime(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*24;
-        gp.monster[mapNum][i].worldY = gp.tileSize*37;
+        gp.monster[mapNum][i] = SlimeFactory.createSlime(gp, "GreenSlime");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 24;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 37;
         i++;
 
-        gp.monster[mapNum][i] = new MON_GreenSlime(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*34;
-        gp.monster[mapNum][i].worldY = gp.tileSize*42;
+        gp.monster[mapNum][i] = SlimeFactory.createSlime(gp, "GreenSlime");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 34;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 42;
         i++;
 
-        gp.monster[mapNum][i] = new MON_GreenSlime(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*38;
-        gp.monster[mapNum][i].worldY = gp.tileSize*42;
+        gp.monster[mapNum][i] = SlimeFactory.createSlime(gp, "GreenSlime");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 38;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 42;
         i++;
 
-        gp.monster[mapNum][i] = new MON_Orc(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*12;
-        gp.monster[mapNum][i].worldY = gp.tileSize*33;
+        gp.monster[mapNum][i] = MonsterFactory.createMonster(gp, "Orc");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 12;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 33;
         i++;
 
-
-        gp.monster[mapNum][i] = new MON_RedSlime(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*34;
-        gp.monster[mapNum][i].worldY = gp.tileSize*11;
+        gp.monster[mapNum][i] = SlimeFactory.createSlime(gp, "RedSlime");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 34;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 11;
         i++;
 
-        gp.monster[mapNum][i] = new MON_RedSlime(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*38;
-        gp.monster[mapNum][i].worldY = gp.tileSize*7;
+        gp.monster[mapNum][i] = SlimeFactory.createSlime(gp, "RedSlime");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 38;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 7;
         i++;
 
-        gp.monster[mapNum][i] = new MON_RedSlime(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*37;
-        gp.monster[mapNum][i].worldY = gp.tileSize*9;
+        gp.monster[mapNum][i] = SlimeFactory.createSlime(gp, "RedSlime");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 37;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 9;
         i++;
 
         mapNum = 2;
         i = 0;
 
-        gp.monster[mapNum][i] = new MON_Bat(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*34;
-        gp.monster[mapNum][i].worldY = gp.tileSize*39;
+        gp.monster[mapNum][i] = MonsterFactory.createMonster(gp, "Bat");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 34;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 39;
         i++;
 
-        gp.monster[mapNum][i] = new MON_Bat(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*36;
-        gp.monster[mapNum][i].worldY = gp.tileSize*25;
+        gp.monster[mapNum][i] = MonsterFactory.createMonster(gp, "Bat");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 36;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 25;
         i++;
 
-        gp.monster[mapNum][i] = new MON_Bat(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*39;
-        gp.monster[mapNum][i].worldY = gp.tileSize*26;
+        gp.monster[mapNum][i] = MonsterFactory.createMonster(gp, "Bat");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 39;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 26;
         i++;
 
-        gp.monster[mapNum][i] = new MON_Bat(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*28;
-        gp.monster[mapNum][i].worldY = gp.tileSize*11;
+        gp.monster[mapNum][i] = MonsterFactory.createMonster(gp, "Bat");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 28;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 11;
         i++;
 
-        gp.monster[mapNum][i] = new MON_Bat(gp);
-        gp.monster[mapNum][i].worldX = gp.tileSize*10;
-        gp.monster[mapNum][i].worldY = gp.tileSize*19;
+        gp.monster[mapNum][i] = MonsterFactory.createMonster(gp, "Bat");
+        gp.monster[mapNum][i].worldX = gp.tileSize * 10;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 19;
         i++;
 
         mapNum = 3;
         i = 0;
 
-        if(Progress.skeletonLordDefeated == false)
-        {
-            gp.monster[mapNum][i] = new MON_SkeletonLord(gp);
-            gp.monster[mapNum][i].worldX = gp.tileSize*23;
-            gp.monster[mapNum][i].worldY = gp.tileSize*16;
+        if (!Progress.skeletonLordDefeated) {
+            gp.monster[mapNum][i] = MonsterFactory.createMonster(gp, "SkeletonLord");
+            gp.monster[mapNum][i].worldX = gp.tileSize * 23;
+            gp.monster[mapNum][i].worldY = gp.tileSize * 16;
             i++;
         }
-
-
     }
     public void setInteractiveTile()
     {

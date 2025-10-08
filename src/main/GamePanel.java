@@ -3,6 +3,7 @@ import ai.PathFinder;
 import data.SaveLoad;
 import entity.Entity;
 import entity.Player;
+import monster.Monster;
 import environment.EnvironmentManager;
 import tile.Map;
 import tile.TileManager;
@@ -66,7 +67,7 @@ public class GamePanel extends JPanel implements Runnable{
     public Player player = new Player(this,keyH);
     public Entity obj[][] = new Entity[maxMap][20]; // display 10 objects same time
     public Entity npc[][] = new Entity[maxMap][10];
-    public Entity monster[][] = new Entity[maxMap][20];
+    public Monster monster[][] = new Monster[maxMap][20];
     public InteractiveTile iTile[][] = new InteractiveTile[maxMap][50];
     public Entity projectile[][] = new Entity[maxMap][20]; // cut projectile
     //public ArrayList<Entity> projectileList = new ArrayList<>();

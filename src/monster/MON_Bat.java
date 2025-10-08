@@ -8,7 +8,7 @@ import object.OBJ_ManaCrystal;
 
 import java.util.Random;
 
-public class MON_Bat extends Entity {
+public class MON_Bat extends Monster {
 
     GamePanel gp; // cuz of different package
     public MON_Bat(GamePanel gp) {
@@ -49,6 +49,12 @@ public class MON_Bat extends Entity {
         right1 = setup("/monster/bat_down_1",gp.tileSize,gp.tileSize);
         right2 = setup("/monster/bat_down_2",gp.tileSize,gp.tileSize);
     }
+
+    @Override
+    public void getAttackImage() {
+
+    }
+
     public void setAction()
     {
         if(onPath == true)
@@ -96,5 +102,10 @@ public class MON_Bat extends Entity {
         {
             dropItem(new OBJ_ManaCrystal(gp));
         }
+    }
+
+    @Override
+    public void setDialogue() {
+
     }
 }
