@@ -17,18 +17,23 @@ public class OBJ_Fireball extends Projectile {
 
         name = objName;
         speed = 5;
-        maxLife = 80;   //after 80 frames, projectile disappears
+        maxLife = 80;
         life = maxLife;
         attack = 1;
         knockBackPower = 5;
-        useCost = 1; //spend 1 mana
+        useCost = 1;
         alive = false;
         price = 75;
-        getImage();
 
+        getImage();
     }
-    public void getImage()
-    {
+
+    @Override
+    public OBJ_Fireball clone() {
+        return (OBJ_Fireball) super.clone();
+    }
+
+    public void getImage() {
         up1 = setup("/projectile/fireball_up_1", gp.tileSize,gp.tileSize);
         up2 = setup("/projectile/fireball_up_2", gp.tileSize,gp.tileSize);
         down1 = setup("/projectile/fireball_down_1", gp.tileSize,gp.tileSize);
@@ -38,37 +43,17 @@ public class OBJ_Fireball extends Projectile {
         right1 = setup("/projectile/fireball_right_1", gp.tileSize,gp.tileSize);
         right2 = setup("/projectile/fireball_right_2", gp.tileSize,gp.tileSize);
     }
-    public boolean haveResource(Entity user)
-    {
-        boolean haveResource = false;
-        if(user.mana >= useCost)
-        {
-            haveResource = true;
-        }
-        return haveResource;
+
+    public boolean haveResource(Entity user) {
+        return user.mana >= useCost;
     }
-    public void subtractResource(Entity user)
-    {
+
+    public void subtractResource(Entity user) {
         user.mana -= useCost;
     }
-    public Color getParticleColor()
-    {
-        Color color = new Color(240,50,0);
-        return color;
-    }
-    public int getParticleSize()
-    {
-        int size = 10; //pixels
-        return size;
-    }
-    public int getParticleSpeed()
-    {
-        int speed = 1;
-        return speed;
-    }
-    public int getParticleMaxLife()
-    {
-        int maxLife = 20;
-        return maxLife;
-    }
+
+    public Color getParticleColor() { return new Color(240,50,0); }
+    public int getParticleSize() { return 10; }
+    public int getParticleSpeed() { return 1; }
+    public int getParticleMaxLife() { return 20; }
 }

@@ -10,6 +10,10 @@ public class Projectile extends Entity{
         super(gp);
 
     }
+    @Override
+    public Projectile clone() {
+        return (Projectile) super.clone();
+    }
 
     public void set(int worldX, int worldY, String direction, boolean alive, Entity user)
     {

@@ -383,31 +383,28 @@ public class Player extends Entity{
         }
 
         //PROJECTILE SHOOTING
-        if(gp.keyH.shotKeyPressed == true && projectile.alive == false && shotAvailableCounter == 30 && projectile.haveResource(this) == true)   //2nd Condition : You can shoot it only one at a time
-        {                                                                                               //3rd Condition : If you close shot monster, projectile.alive will be false. So if you still pressing F key, immediately shoot another fireball.
-            // SET DEFAULT COORDINATES, DIRECTION AND USER
-            projectile.set(worldX,worldY,direction,true,this);
+        if(gp.keyH.shotKeyPressed && shotAvailableCounter == 30 && projectile.haveResource(this)) {
+            // Create a new clone from the fireball prototype
+            Projectile newProjectile = projectile.clone();
 
-            // SUBTRACT THE COST(MANA,AMMO ETC.)
-            projectile.subtractResource(this);
+            // Initialize this projectile instance
+            newProjectile.set(worldX, worldY, direction, true, this);
 
-            // ADD IT TO THE LIST
-            //gp.projectileList.add(projectile);
+            // Subtract mana or other cost
+            newProjectile.subtractResource(this);
 
-            //CHECK VACANCY
-            for(int i = 0; i < gp.projectile[1].length; i++)
-            {
-                if(gp.projectile[gp.currentMap][i] == null)
-                {
-                    gp.projectile[gp.currentMap][i] = projectile;
+            // Add the cloned projectile to the array
+            for (int i = 0; i < gp.projectile[1].length; i++) {
+                if (gp.projectile[gp.currentMap][i] == null) {
+                    gp.projectile[gp.currentMap][i] = newProjectile;
                     break;
                 }
             }
 
-            shotAvailableCounter = 0; //reset
-
+            shotAvailableCounter = 0;
             gp.playSE(10);
         }
+
 
         //This needs to be outside of key if statement! // If player receive damage from monster, player's gonna be invincible for a second
         if(invincible == true)
