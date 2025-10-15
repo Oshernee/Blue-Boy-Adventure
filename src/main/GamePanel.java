@@ -7,6 +7,7 @@ import environment.EnvironmentManager;
 import tile.Map;
 import tile.TileManager;
 import tile_interactive.InteractiveTile;
+import tile_interactive.InteractiveTileFactory;
 
 import javax.swing.JPanel;
 import java.awt.*;
@@ -53,7 +54,6 @@ public class GamePanel extends JPanel implements Runnable{
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter  aSetter = new AssetSetter(this);
     public UI ui = new UI(this);
-    Config config = Config.getInstance(this);
     public PathFinder pFinder = new PathFinder(this);
     EnvironmentManager eManager = new EnvironmentManager(this);
     Map map = new Map(this);
@@ -72,7 +72,7 @@ public class GamePanel extends JPanel implements Runnable{
     //public ArrayList<Entity> projectileList = new ArrayList<>();
     public ArrayList<Entity> particleList = new ArrayList<>();
     ArrayList<Entity> entityList = new ArrayList<>();
-
+    public InteractiveTileFactory iTileFactory;
 
     //GAME STATE
     public int gameState;
@@ -110,6 +110,7 @@ public class GamePanel extends JPanel implements Runnable{
     }
     public void setupGame()
     {
+        iTileFactory = new InteractiveTileFactory(this);
         aSetter.setObject();
         aSetter.setNPC();
         aSetter.setMonster();
