@@ -384,16 +384,12 @@ public class Player extends Entity{
 
         //PROJECTILE SHOOTING
         if(gp.keyH.shotKeyPressed && shotAvailableCounter == 30 && projectile.haveResource(this)) {
-            // Create a new clone from the fireball prototype
             Projectile newProjectile = projectile.clone();
 
-            // Initialize this projectile instance
             newProjectile.set(worldX, worldY, direction, true, this);
 
-            // Subtract mana or other cost
             newProjectile.subtractResource(this);
 
-            // Add the cloned projectile to the array
             for (int i = 0; i < gp.projectile[1].length; i++) {
                 if (gp.projectile[gp.currentMap][i] == null) {
                     gp.projectile[gp.currentMap][i] = newProjectile;
