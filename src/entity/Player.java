@@ -74,6 +74,7 @@ public class Player extends Entity{
         currentShield = new OBJ_Shield_Wood(gp);
         currentLight = null;
         projectile = new OBJ_Fireball(gp);
+
         //projectile = new OBJ_Rock(gp);
         attack = getAttack();   // The total attack value is decided by strength and weapon
         defense = getDefense(); // The total defense value is decided by dexterity and shield
@@ -382,12 +383,9 @@ public class Player extends Entity{
 
         }
 
-        //PROJECTILE SHOOTING
         if(gp.keyH.shotKeyPressed && shotAvailableCounter == 30 && projectile.haveResource(this)) {
-            Projectile newProjectile = projectile.clone();
-
+            Projectile newProjectile = projectile.clone(); // clone prototype
             newProjectile.set(worldX, worldY, direction, true, this);
-
             newProjectile.subtractResource(this);
 
             for (int i = 0; i < gp.projectile[1].length; i++) {
@@ -400,6 +398,29 @@ public class Player extends Entity{
             shotAvailableCounter = 0;
             gp.playSE(10);
         }
+
+        if(gp.keyH.altShotKeyPressed && shotAvailableCounter == 30 && projectile.haveResource(this)) {
+            Projectile bigProjectile = projectile.clone();
+
+            bigProjectile.solidArea.width = 100;
+            bigProjectile.solidArea.height = 100;
+            bigProjectile.attack = 1;
+
+            bigProjectile.set(worldX, worldY, direction, true, this);
+            bigProjectile.subtractResource(this);
+
+            for (int i = 0; i < gp.projectile[1].length; i++) {
+                if (gp.projectile[gp.currentMap][i] == null) {
+                    gp.projectile[gp.currentMap][i] = bigProjectile;
+                    break;
+                }
+            }
+
+            shotAvailableCounter = 0;
+            gp.playSE(10);
+        }
+
+
 
 
         //This needs to be outside of key if statement! // If player receive damage from monster, player's gonna be invincible for a second

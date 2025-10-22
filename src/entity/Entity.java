@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Entity implements Cloneable {
+public class Entity {
 
     GamePanel gp;
     public BufferedImage up1,up2,down1,down2,left1,left2,right1,right2;
@@ -119,18 +119,10 @@ public class Entity implements Cloneable {
 
     }
 
-    @Override
-    public Entity clone() {
-        try {
-            Entity copy = (Entity) super.clone();
-            copy.solidArea = new Rectangle(this.solidArea);
-            copy.attackArea = new Rectangle(this.attackArea);
-            copy.inventory = new ArrayList<>(this.inventory);
-            return copy;
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            return null;
-        }
+    protected Entity deepCopy(Entity source) {
+        source.solidArea = new Rectangle(source.solidArea);
+        source.attackArea = new Rectangle(source.attackArea);
+        return source;
     }
 
     public int getScreenX()
