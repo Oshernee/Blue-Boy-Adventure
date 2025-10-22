@@ -18,9 +18,68 @@ public class Player extends Entity{
     public boolean attackCanceled = false;
     public boolean lightUpdated = false;
 
+    /**
+     * New constructor using Builder pattern
+     */
+    Player(PlayerBuilder builder) {
+        super(builder.getGp());
+        
+        this.keyH = builder.getKeyH();
+        this.screenX = builder.getScreenX();
+        this.screenY = builder.getScreenY();
+        
+        // Set values from builder
+        this.worldX = builder.getWorldX();
+        this.worldY = builder.getWorldY();
+        gp.currentMap = builder.getCurrentMap();
+        gp.currentArea = builder.getCurrentArea();
+        this.direction = builder.getDirection();
+        
+        this.level = builder.getLevel();
+        this.maxLife = builder.getMaxLife();
+        this.life = builder.getLife();
+        this.maxMana = builder.getMaxMana();
+        this.mana = builder.getMana();
+        this.ammo = builder.getAmmo();
+        this.strength = builder.getStrength();
+        this.dexterity = builder.getDexterity();
+        this.exp = builder.getExp();
+        this.nextLevelExp = builder.getNextLevelExp();
+        this.coin = builder.getCoin();
+        
+        this.defaultSpeed = builder.getDefaultSpeed();
+        this.speed = builder.getSpeed();
+        
+        this.solidArea = builder.getSolidArea();
+        this.solidAreaDefaultX = builder.getSolidAreaDefaultX();
+        this.solidAreaDefaultY = builder.getSolidAreaDefaultY();
+        
+        this.currentWeapon = builder.getCurrentWeapon();
+        this.currentShield = builder.getCurrentShield();
+        this.currentLight = builder.getCurrentLight();
+        this.projectile = builder.getProjectile();
+        
+        this.invincible = builder.isInvincible();
+        this.attackCanceled = builder.isAttackCanceled();
+        this.lightUpdated = builder.isLightUpdated();
+        
+        this.attack = getAttack();
+        this.defense = getDefense();
+
+        getImage();
+        getAttackImage();
+        getGuardImage();
+        setItems();
+    }
+
+    /**
+     * @deprecated Use PlayerBuilder.create(gp, keyH).build() instead
+     * Kept for backward compatibility
+     */
+    @Deprecated
     public Player(GamePanel gp, KeyHandler keyH)
     {
-        super(gp); // calling constructor of super class(from entity class)
+        super(gp);
         this.keyH=keyH;
 
         screenX = gp.screenWidth/2 - (gp.tileSize/2);
@@ -34,10 +93,14 @@ public class Player extends Entity{
         solidAreaDefaultX = 8;
         solidAreaDefaultY = 16;
 
-//      attackArea.width = 36;  //For test sword
-//      attackArea.height = 36;
+        setDefaultValues();
+    }
 
-        setDefaultValues(); // when u create Player object, initialize with default values
+    /**
+     * Static factory method to create builder
+     */
+    public static PlayerBuilder builder(GamePanel gp, KeyHandler keyH) {
+        return PlayerBuilder.create(gp, keyH);
     }
 
     public void setDefaultValues()
@@ -47,11 +110,6 @@ public class Player extends Entity{
         worldY = gp.tileSize * 21;
         gp.currentMap = 0;
         gp.currentArea = gp.outside;
-
-        //Blue Gem Start Position, mapNum = 3;
-//         worldX = gp.tileSize *25;
-//        worldY = gp.tileSize * 9;
-//        gp.currentMap = 3;
 
         defaultSpeed = 4;
         speed = defaultSpeed;
@@ -64,8 +122,8 @@ public class Player extends Entity{
         maxMana = 8;
         mana = maxMana;
         ammo = 10;
-        strength = 1;           // The more strenght he has, the more damage he gives.
-        dexterity = 1;          // The more dexterity he has, the less damage he receives.
+        strength = 1;
+        dexterity = 1;
         exp = 0;
         nextLevelExp = 4;
         coin = 40;
@@ -74,16 +132,15 @@ public class Player extends Entity{
         currentShield = new OBJ_Shield_Wood(gp);
         currentLight = null;
         projectile = new OBJ_Fireball(gp);
-        //projectile = new OBJ_Rock(gp);
-        attack = getAttack();   // The total attack value is decided by strength and weapon
-        defense = getDefense(); // The total defense value is decided by dexterity and shield
+        attack = getAttack();
+        defense = getDefense();
 
         getImage();
         getAttackImage();
         getGuardImage();
         setItems();
-        //setDialogue();
     }
+    
     public void setDefaultPositions()
     {
         gp.currentMap = 0;
@@ -91,10 +148,12 @@ public class Player extends Entity{
         worldY = gp.tileSize * 21;
         direction = "down";
     }
+    
     public void setDialogue()
     {
         dialogues[0][0] = "You are level " + level + " now!\n" + "You feel stronger!";
     }
+    
     public void restoreStatus()
     {
         life = maxLife;
@@ -110,17 +169,9 @@ public class Player extends Entity{
 
     public void setItems()
     {
-        inventory.clear(); //cuz if game restarts inventory must be cleared first
+        inventory.clear();
         inventory.add(currentWeapon);
         inventory.add(currentShield);
-        /*inventory.add(new OBJ_Potion_Red(gp));
-        inventory.add(new OBJ_Key(gp));
-        inventory.add(new OBJ_Key(gp));
-
-        inventory.add(new OBJ_Lantern(gp));
-        inventory.add(new OBJ_Axe(gp));
-        inventory.add(new OBJ_Pickaxe(gp));*/
-
     }
 
     public int getAttack()
@@ -135,6 +186,7 @@ public class Player extends Entity{
     {
         return defense = dexterity * currentShield.defenseValue;
     }
+    
     public int getCurrentWeaponSlot()
     {
         int currentWeaponSlot = 0;
@@ -147,6 +199,7 @@ public class Player extends Entity{
         }
         return currentWeaponSlot;
     }
+    
     public int getCurrentShieldSlot()
     {
         int currentShieldSlot = 0;
@@ -171,6 +224,7 @@ public class Player extends Entity{
             right1 = setup("/player/boy_right_1",gp.tileSize,gp.tileSize);
             right2 = setup("/player/boy_right_2",gp.tileSize,gp.tileSize);
     }
+    
     public void getSleepingImage(BufferedImage image)
     {
         up1 = image;
@@ -182,43 +236,44 @@ public class Player extends Entity{
         right1 = image;
         right2 = image;
     }
+
     public void getAttackImage()
     {
         if(currentWeapon.type == type_sword)
         {
-            attackUp1 = setup("/player/boy_attack_up_1",gp.tileSize, gp.tileSize * 2);         // 16x32 px
-            attackUp2 = setup("/player/boy_attack_up_2",gp.tileSize, gp.tileSize * 2);         // 16x32 px
-            attackDown1 = setup("/player/boy_attack_down_1",gp.tileSize, gp.tileSize * 2);     // 16x32 px
-            attackDown2 = setup("/player/boy_attack_down_2",gp.tileSize, gp.tileSize * 2);     // 16x32 px
-            attackLeft1 = setup("/player/boy_attack_left_1",gp.tileSize * 2, gp.tileSize);      // 32x16 px
-            attackLeft2 = setup("/player/boy_attack_left_2",gp.tileSize * 2, gp.tileSize);      // 32x16 px
-            attackRight1 = setup("/player/boy_attack_right_1",gp.tileSize * 2, gp.tileSize);    // 32x16 px
-            attackRight2 = setup("/player/boy_attack_right_2",gp.tileSize * 2, gp.tileSize);    // 32x16 px
+            attackUp1 = setup("/player/boy_attack_up_1",gp.tileSize, gp.tileSize * 2);
+            attackUp2 = setup("/player/boy_attack_up_2",gp.tileSize, gp.tileSize * 2);
+            attackDown1 = setup("/player/boy_attack_down_1",gp.tileSize, gp.tileSize * 2);
+            attackDown2 = setup("/player/boy_attack_down_2",gp.tileSize, gp.tileSize * 2);
+            attackLeft1 = setup("/player/boy_attack_left_1",gp.tileSize * 2, gp.tileSize);
+            attackLeft2 = setup("/player/boy_attack_left_2",gp.tileSize * 2, gp.tileSize);
+            attackRight1 = setup("/player/boy_attack_right_1",gp.tileSize * 2, gp.tileSize);
+            attackRight2 = setup("/player/boy_attack_right_2",gp.tileSize * 2, gp.tileSize);
         }
         else if(currentWeapon.type == type_axe)
         {
-            attackUp1 = setup("/player/boy_axe_up_1",gp.tileSize, gp.tileSize * 2);         // 16x32 px
-            attackUp2 = setup("/player/boy_axe_up_2",gp.tileSize, gp.tileSize * 2);         // 16x32 px
-            attackDown1 = setup("/player/boy_axe_down_1",gp.tileSize, gp.tileSize * 2);     // 16x32 px
-            attackDown2 = setup("/player/boy_axe_down_2",gp.tileSize, gp.tileSize * 2);     // 16x32 px
-            attackLeft1 = setup("/player/boy_axe_left_1",gp.tileSize * 2, gp.tileSize);      // 32x16 px
-            attackLeft2 = setup("/player/boy_axe_left_2",gp.tileSize * 2, gp.tileSize);      // 32x16 px
-            attackRight1 = setup("/player/boy_axe_right_1",gp.tileSize * 2, gp.tileSize);    // 32x16 px
-            attackRight2 = setup("/player/boy_axe_right_2",gp.tileSize * 2, gp.tileSize);    // 32x16 px
+            attackUp1 = setup("/player/boy_axe_up_1",gp.tileSize, gp.tileSize * 2);
+            attackUp2 = setup("/player/boy_axe_up_2",gp.tileSize, gp.tileSize * 2);
+            attackDown1 = setup("/player/boy_axe_down_1",gp.tileSize, gp.tileSize * 2);
+            attackDown2 = setup("/player/boy_axe_down_2",gp.tileSize, gp.tileSize * 2);
+            attackLeft1 = setup("/player/boy_axe_left_1",gp.tileSize * 2, gp.tileSize);
+            attackLeft2 = setup("/player/boy_axe_left_2",gp.tileSize * 2, gp.tileSize);
+            attackRight1 = setup("/player/boy_axe_right_1",gp.tileSize * 2, gp.tileSize);
+            attackRight2 = setup("/player/boy_axe_right_2",gp.tileSize * 2, gp.tileSize);
         }
         else if(currentWeapon.type == type_pickaxe)
         {
-            attackUp1 = setup("/player/boy_pick_up_1",gp.tileSize, gp.tileSize * 2);         // 16x32 px
-            attackUp2 = setup("/player/boy_pick_up_2",gp.tileSize, gp.tileSize * 2);         // 16x32 px
-            attackDown1 = setup("/player/boy_pick_down_1",gp.tileSize, gp.tileSize * 2);     // 16x32 px
-            attackDown2 = setup("/player/boy_pick_down_2",gp.tileSize, gp.tileSize * 2);     // 16x32 px
-            attackLeft1 = setup("/player/boy_pick_left_1",gp.tileSize * 2, gp.tileSize);      // 32x16 px
-            attackLeft2 = setup("/player/boy_pick_left_2",gp.tileSize * 2, gp.tileSize);      // 32x16 px
-            attackRight1 = setup("/player/boy_pick_right_1",gp.tileSize * 2, gp.tileSize);    // 32x16 px
-            attackRight2 = setup("/player/boy_pick_right_2",gp.tileSize * 2, gp.tileSize);    // 32x16 px
+            attackUp1 = setup("/player/boy_pick_up_1",gp.tileSize, gp.tileSize * 2);
+            attackUp2 = setup("/player/boy_pick_up_2",gp.tileSize, gp.tileSize * 2);
+            attackDown1 = setup("/player/boy_pick_down_1",gp.tileSize, gp.tileSize * 2);
+            attackDown2 = setup("/player/boy_pick_down_2",gp.tileSize, gp.tileSize * 2);
+            attackLeft1 = setup("/player/boy_pick_left_1",gp.tileSize * 2, gp.tileSize);
+            attackLeft2 = setup("/player/boy_pick_left_2",gp.tileSize * 2, gp.tileSize);
+            attackRight1 = setup("/player/boy_pick_right_1",gp.tileSize * 2, gp.tileSize);
+            attackRight2 = setup("/player/boy_pick_right_2",gp.tileSize * 2, gp.tileSize);
         }
-
     }
+    
     public void getGuardImage()
     {
         guardUp = setup("/player/boy_guard_up",gp.tileSize,gp.tileSize);
@@ -226,6 +281,7 @@ public class Player extends Entity{
         guardLeft = setup("/player/boy_guard_left",gp.tileSize,gp.tileSize);
         guardRight = setup("/player/boy_guard_right",gp.tileSize,gp.tileSize);
     }
+
     public void update() // Runs 60 times every seconds.
     {
         if(knockBack == true)

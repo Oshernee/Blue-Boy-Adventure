@@ -3,6 +3,7 @@ import ai.PathFinder;
 import data.SaveLoad;
 import entity.Entity;
 import entity.Player;
+import entity.PlayerBuilder;
 import environment.EnvironmentManager;
 import tile.Map;
 import tile.TileManager;
@@ -63,7 +64,12 @@ public class GamePanel extends JPanel implements Runnable{
     Thread gameThread;
 
     //ENTITY AND OBJECT
-    public Player player = new Player(this,keyH);
+    //public Player player = new Player(this,keyH);
+    public Player player = PlayerBuilder.create(this, keyH)
+                                       .withBeginnerStats()
+                                       .atStartingPosition()
+                                       .withBasicEquipment()
+                                       .build();
     public Entity obj[][] = new Entity[maxMap][20]; // display 10 objects same time
     public Entity npc[][] = new Entity[maxMap][10];
     public Entity monster[][] = new Entity[maxMap][20];
