@@ -1,15 +1,12 @@
 package entity;
 
 import entity.decorator.DamageBuffDecorator;
-import entity.decorator.ManaBuffDecorator;
-import entity.decorator.HealthBuffDecorator;
 import main.GamePanel;
 import main.KeyHandler;
 import object.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
 
 public class Player extends Entity{

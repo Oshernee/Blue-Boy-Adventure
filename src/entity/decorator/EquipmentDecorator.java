@@ -8,7 +8,7 @@ public abstract class EquipmentDecorator extends Entity {
     protected Entity baseEquipment;
     
     public EquipmentDecorator(Entity equipment) {
-        super(equipment.gp);
+        super(equipment.getGp());
         this.baseEquipment = equipment;
         
         // Copy ALL base properties
