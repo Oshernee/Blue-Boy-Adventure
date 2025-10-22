@@ -1,5 +1,8 @@
 package entity;
 
+import entity.decorator.DamageBuffDecorator;
+import entity.decorator.ManaBuffDecorator;
+import entity.decorator.HealthBuffDecorator;
 import main.GamePanel;
 import main.KeyHandler;
 import object.*;
@@ -48,11 +51,6 @@ public class Player extends Entity{
         gp.currentMap = 0;
         gp.currentArea = gp.outside;
 
-        //Blue Gem Start Position, mapNum = 3;
-//         worldX = gp.tileSize *25;
-//        worldY = gp.tileSize * 9;
-//        gp.currentMap = 3;
-
         defaultSpeed = 4;
         speed = defaultSpeed;
         direction = "down";
@@ -64,26 +62,55 @@ public class Player extends Entity{
         maxMana = 8;
         mana = maxMana;
         ammo = 10;
-        strength = 1;           // The more strenght he has, the more damage he gives.
-        dexterity = 1;          // The more dexterity he has, the less damage he receives.
+        strength = 1;
+        dexterity = 1;
         exp = 0;
         nextLevelExp = 4;
         coin = 40;
         invincible = false;
+        
+        // Create base equipment
         currentWeapon = new OBJ_Sword_Normal(gp);
         currentShield = new OBJ_Shield_Wood(gp);
+        
+        // Apply enchantments/buffs to starting equipment
+        applyStartingBuffs();
+        
         currentLight = null;
         projectile = new OBJ_Fireball(gp);
-        //projectile = new OBJ_Rock(gp);
-        attack = getAttack();   // The total attack value is decided by strength and weapon
-        defense = getDefense(); // The total defense value is decided by dexterity and shield
+        attack = getAttack();
+        defense = getDefense();
 
         getImage();
         getAttackImage();
         getGuardImage();
         setItems();
-        //setDialogue();
     }
+    
+    /**
+     * Apply enchantment buffs to starting equipment
+     */
+    private void applyStartingBuffs() {
+        // Enhance weapon with damage buff
+        currentWeapon = new DamageBuffDecorator(currentWeapon, 2);
+        
+        // Apply mana buff (if you want)
+        // currentWeapon = new ManaBuffDecorator(currentWeapon, 3);
+        // if(currentWeapon instanceof ManaBuffDecorator) {
+        //     ((ManaBuffDecorator) currentWeapon).applyBuff(this);
+        // }
+        
+        // Enhance shield with health buff (if you want)
+        // currentShield = new HealthBuffDecorator(currentShield, 2);
+        // if(currentShield instanceof HealthBuffDecorator) {
+        //     ((HealthBuffDecorator) currentShield).applyBuff(this);
+        // }
+        
+        // IMPORTANT: Recalculate stats after applying buffs
+        attack = getAttack();
+        defense = getDefense();
+    }
+    
     public void setDefaultPositions()
     {
         gp.currentMap = 0;
