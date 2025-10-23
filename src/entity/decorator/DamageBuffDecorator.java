@@ -12,8 +12,6 @@ public class DamageBuffDecorator extends EquipmentDecorator {
         
         // Enhance attack value
         this.attackValue = baseEquipment.attackValue + bonusAttack;
-        
-        // IMPORTANT: Copy defenseValue (don't modify it)
         this.defenseValue = baseEquipment.defenseValue;
         
         // Update name and description
