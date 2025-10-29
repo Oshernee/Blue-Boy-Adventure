@@ -597,7 +597,7 @@ public class Player extends Entity{
                 gp.ui.addMessage(damage + " damage!");
                 gp.monster[gp.currentMap][i].invincible = true;
                 gp.monster[gp.currentMap][i].damageReaction();  //run away from player
-                notifyMonsterDamaged(gp.monster[gp.currentMap][i], damage); // ADD THIS
+                notifyMonsterDamaged(gp.monster[gp.currentMap][i], damage);
                 if(gp.monster[gp.currentMap][i].life <= 0)
                 {
                     gp.monster[gp.currentMap][i].dying = true;
