@@ -2,20 +2,18 @@ package entity.decorator;
 
 import entity.Entity;
 
-public class DamageBuffDecorator extends EquipmentDecorator {
+public class LifeStealDecorator extends EquipmentDecorator {
     
-    private int bonusAttack;
+    private int lifeStealPercent;
     
-    public DamageBuffDecorator(Entity equipment, int bonusAttack) {
+    public LifeStealDecorator(Entity equipment, int lifeStealPercent) {
         super(equipment);
-        this.bonusAttack = bonusAttack;
+        this.lifeStealPercent = lifeStealPercent;
 
-        this.attackValue = baseEquipment.attackValue + bonusAttack;
-        this.defenseValue = baseEquipment.defenseValue;
+        this.name = "Vampiric " + baseEquipment.name;
+        updateDescription();
 
-        this.name = baseEquipment.name + " +DMG";
-
-        this.price = (int)(baseEquipment.price * 1.5);
+        this.price = (int)(baseEquipment.price * 2.0);
     }
     
     private void updateDescription() {
@@ -28,7 +26,7 @@ public class DamageBuffDecorator extends EquipmentDecorator {
         }
         
         this.description = "[" + this.name + "]" + baseDesc + 
-                          "\n+Damage Buff: +" + bonusAttack + " ATK";
+                          "\n+Life Steal: " + lifeStealPercent + "%";
     }
     
     @Override
@@ -36,13 +34,13 @@ public class DamageBuffDecorator extends EquipmentDecorator {
         boolean result = super.use(user);
         
         if(result && getGamePanel() != null) {
-            getGamePanel().playSE(3);
+            getGamePanel().playSE(10); // blood/dark sound
         }
         
         return result;
     }
     
-    public int getBonusAttack() {
-        return bonusAttack;
+    public int getLifeStealPercent() {
+        return lifeStealPercent;
     }
 }

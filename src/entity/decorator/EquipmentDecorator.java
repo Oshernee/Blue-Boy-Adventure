@@ -25,6 +25,10 @@ public abstract class EquipmentDecorator extends Entity {
         this.motion2_duration = equipment.motion2_duration;
         this.knockBackPower = equipment.knockBackPower;
         
+        // Copy special effects
+        this.lifeStealPercent = equipment.lifeStealPercent;
+        this.criticalChance = equipment.criticalChance;
+        
         // Copy collision/visual properties
         this.solidArea = equipment.solidArea;
         this.solidAreaDefaultX = equipment.solidAreaDefaultX;

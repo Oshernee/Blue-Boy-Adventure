@@ -2,20 +2,21 @@ package entity.decorator;
 
 import entity.Entity;
 
-public class DamageBuffDecorator extends EquipmentDecorator {
+public class DefenseBuffDecorator extends EquipmentDecorator {
     
-    private int bonusAttack;
+    private int bonusDefense;
     
-    public DamageBuffDecorator(Entity equipment, int bonusAttack) {
+    public DefenseBuffDecorator(Entity equipment, int bonusDefense) {
         super(equipment);
-        this.bonusAttack = bonusAttack;
+        this.bonusDefense = bonusDefense;
 
-        this.attackValue = baseEquipment.attackValue + bonusAttack;
-        this.defenseValue = baseEquipment.defenseValue;
+        this.defenseValue = baseEquipment.defenseValue + bonusDefense;
+        this.attackValue = baseEquipment.attackValue;
 
-        this.name = baseEquipment.name + " +DMG";
+        this.name = baseEquipment.name + " +DEF";
+        updateDescription();
 
-        this.price = (int)(baseEquipment.price * 1.5);
+        this.price = (int)(baseEquipment.price * 1.4);
     }
     
     private void updateDescription() {
@@ -28,7 +29,7 @@ public class DamageBuffDecorator extends EquipmentDecorator {
         }
         
         this.description = "[" + this.name + "]" + baseDesc + 
-                          "\n+Damage Buff: +" + bonusAttack + " ATK";
+                          "\n+Defense Buff: +" + bonusDefense + " DEF";
     }
     
     @Override
@@ -42,7 +43,7 @@ public class DamageBuffDecorator extends EquipmentDecorator {
         return result;
     }
     
-    public int getBonusAttack() {
-        return bonusAttack;
+    public int getBonusDefense() {
+        return bonusDefense;
     }
 }

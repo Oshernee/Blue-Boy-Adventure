@@ -152,6 +152,11 @@ public class Player extends Entity{
         attackArea = currentWeapon.attackArea;
         motion1_duration = currentWeapon.motion1_duration;
         motion2_duration = currentWeapon.motion2_duration;
+        
+        // Copy special effects from current weapon
+        this.lifeStealPercent = currentWeapon.lifeStealPercent;
+        this.criticalChance = currentWeapon.criticalChance;
+        
         return attack = strength * currentWeapon.attackValue;
     }
 
@@ -552,19 +557,50 @@ public class Player extends Entity{
                 {
                     setKnockBack(gp.monster[gp.currentMap][i], attacker, knockBackPower);
                 }
-                if(gp.monster[gp.currentMap][i].offBalance == true)
+                
+                // Check for critical hit
+                boolean isCritical = false;
+                if(attacker.criticalChance > 0 || attacker.offBalance == true)
                 {
-                    attack *= 2;
+                    int critRoll = new java.util.Random().nextInt(100) + 1;
+                    if(critRoll <= attacker.criticalChance || attacker.offBalance == true)
+                    {
+                        isCritical = true;
+                        attack *= 2; // Double damage on critical
+                        gp.playSE(16); // Play parry sound for critical
+                        gp.ui.addMessage("CRITICAL HIT!");
+                    }
                 }
+                
                 int damage = attack - gp.monster[gp.currentMap][i].defense;
-                if(damage <= 0 )
+                if(damage <= 0)
                 {
                     damage = 1;
                 }
+                
                 gp.monster[gp.currentMap][i].life -= damage;
                 gp.ui.addMessage(damage + " damage!");
                 gp.monster[gp.currentMap][i].invincible = true;
-                gp.monster[gp.currentMap][i].damageReaction();  //run away from player
+                gp.monster[gp.currentMap][i].damageReaction();
+                
+                // Apply Life Steal
+                if(attacker.lifeStealPercent > 0 && attacker == gp.player)
+                {
+                    int healAmount = (int)(damage * (attacker.lifeStealPercent / 100.0));
+                    if(healAmount < 1) healAmount = 1;
+                    
+                    attacker.life += healAmount;
+                    if(attacker.life > attacker.maxLife)
+                    {
+                        attacker.life = attacker.maxLife;
+                    }
+                    
+                    gp.ui.addMessage("+" + healAmount + " HP (Life Steal)");
+                    gp.playSE(2); // Powerup sound
+                    
+                    // Visual feedback - generate red particles
+                    generateParticle(gp.monster[gp.currentMap][i], attacker);
+                }
 
                 if(gp.monster[gp.currentMap][i].life <= 0)
                 {

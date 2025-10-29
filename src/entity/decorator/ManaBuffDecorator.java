@@ -9,12 +9,10 @@ public class ManaBuffDecorator extends EquipmentDecorator {
     public ManaBuffDecorator(Entity equipment, int manaBonus) {
         super(equipment);
         this.manaBonus = manaBonus;
-        
-        // Update name and description
+
         this.name = baseEquipment.name + " of Wisdom";
         updateDescription();
-        
-        // Increase price
+
         this.price = (int)(baseEquipment.price * 1.3);
     }
     
@@ -30,8 +28,7 @@ public class ManaBuffDecorator extends EquipmentDecorator {
         this.description = "[" + this.name + "]" + baseDesc + 
                           "\n+Max Mana: +" + manaBonus;
     }
-    
-    // This method can be called manually to apply the buff
+
     public void applyBuff(Entity user) {
         user.maxMana += manaBonus;
         user.mana += manaBonus;

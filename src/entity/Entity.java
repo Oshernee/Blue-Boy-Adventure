@@ -113,6 +113,11 @@ public class Entity {
     public final int type_light = 9;
     public final int type_pickaxe = 10;
 
+    // Add these new attributes for decorator effects
+    public int lifeStealPercent = 0;
+    public int criticalChance = 0;
+    public boolean criticalHit = false;
+
     public Entity(GamePanel gp)
     {
         this.gp = gp;
