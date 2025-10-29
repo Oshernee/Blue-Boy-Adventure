@@ -4,14 +4,14 @@ import entity.Entity;
 import object.OBJ_Coin_Bronze;
 import object.OBJ_Heart;
 import object.OBJ_ManaCrystal;
-
+import entity.Player;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-public class UI {
+public class UI implements PlayerObserver {
 
     GamePanel gp;
     Graphics2D g2;
@@ -64,6 +64,33 @@ public class UI {
         crystal_blank = crystal.image2;
         Entity bronzeCoin = new OBJ_Coin_Bronze(gp);
         coin = bronzeCoin.down1;
+    }
+
+
+    @Override
+    public void onHealthChange(Player player) {
+        if(player.life <= player.maxLife * 0.25) {
+            addMessage("WARNING: Low Health!");
+        }
+    }
+
+    @Override
+    public void onManaChange(Player player) {
+        addMessage("Mana: " + player.mana + " / " + player.maxMana);
+    }
+
+    @Override
+    public void onLevelUp(Player player) {
+        addMessage("Level up! You are now level " + player.level);
+    }
+
+    @Override
+    public void onMonsterDamaged(Entity monster, int damage) {
+        int damageX = monster.worldX + gp.tileSize / 2;
+        int damageY = monster.worldY;
+
+        DamageNumber dmgNum = new DamageNumber(damage, damageX, damageY);
+        gp.damageNumbers.add(dmgNum);
     }
     public void drawPauseScreen()
     {

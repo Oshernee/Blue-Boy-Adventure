@@ -3,10 +3,14 @@ package entity;
 import main.GamePanel;
 import main.KeyHandler;
 import object.*;
+import main.PlayerObserver;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.List;
+
+
 
 
 public class Player extends Entity{
@@ -17,6 +21,7 @@ public class Player extends Entity{
     int standCounter = 0;
     public boolean attackCanceled = false;
     public boolean lightUpdated = false;
+    private List<PlayerObserver> observers = new ArrayList<>();
 
     public Player(GamePanel gp, KeyHandler keyH)
     {
@@ -39,6 +44,40 @@ public class Player extends Entity{
 
         setDefaultValues(); // when u create Player object, initialize with default values
     }
+
+
+    public void addObserver(PlayerObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(PlayerObserver observer) {
+        observers.remove(observer);
+    }
+
+    private void notifyHealthChange() {
+        for (PlayerObserver o : observers) {
+            o.onHealthChange(this);
+        }
+    }
+
+    private void notifyManaChange() {
+        for (PlayerObserver o : observers) {
+            o.onManaChange(this);
+        }
+    }
+
+    private void notifyLevelUp() {
+        for (PlayerObserver o : observers) {
+            o.onLevelUp(this);
+        }
+    }
+
+    private void notifyMonsterDamaged(Entity monster, int damage) {
+        for (PlayerObserver o : observers) {
+            o.onMonsterDamaged(monster, damage);
+        }
+    }
+
 
     public void setDefaultValues()
     {
@@ -397,6 +436,7 @@ public class Player extends Entity{
 
             shotAvailableCounter = 0;
             gp.playSE(10);
+            notifyManaChange();
         }
 
         if(gp.keyH.altShotKeyPressed && shotAvailableCounter == 30 && projectile.haveResource(this)) {
@@ -418,6 +458,7 @@ public class Player extends Entity{
 
             shotAvailableCounter = 0;
             gp.playSE(10);
+            notifyManaChange();
         }
 
 
@@ -525,6 +566,7 @@ public class Player extends Entity{
                     damage = 1;
                 }
                 life -= damage;
+                notifyHealthChange();
                 invincible = true;
                 transparent = true;
             }
@@ -555,12 +597,10 @@ public class Player extends Entity{
                 gp.ui.addMessage(damage + " damage!");
                 gp.monster[gp.currentMap][i].invincible = true;
                 gp.monster[gp.currentMap][i].damageReaction();  //run away from player
-
+                notifyMonsterDamaged(gp.monster[gp.currentMap][i], damage); // ADD THIS
                 if(gp.monster[gp.currentMap][i].life <= 0)
                 {
                     gp.monster[gp.currentMap][i].dying = true;
-                    gp.ui.addMessage("Killed the " + gp.monster[gp.currentMap][i].name + "!");
-                    gp.ui.addMessage("Exp +" + gp.monster[gp.currentMap][i].exp + "!");
                     exp += gp.monster[gp.currentMap][i].exp;
                     checkLevelUp();
                 }
@@ -618,6 +658,7 @@ public class Player extends Entity{
              dialogues[0][0] = "You are level " + level + " now!\n" + "You feel stronger!";
              setDialogue();
              startDialogue(this,0);
+             notifyLevelUp();
          }
     }
     public void selectItem()
@@ -655,6 +696,7 @@ public class Player extends Entity{
             {
                 if(selectedItem.use(this) == true)
                 {
+                    notifyHealthChange();
                     if(selectedItem.amount > 1)
                     {
                         selectedItem.amount--;

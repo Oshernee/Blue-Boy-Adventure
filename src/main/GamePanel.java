@@ -72,7 +72,7 @@ public class GamePanel extends JPanel implements Runnable{
     //public ArrayList<Entity> projectileList = new ArrayList<>();
     public ArrayList<Entity> particleList = new ArrayList<>();
     ArrayList<Entity> entityList = new ArrayList<>();
-
+    public ArrayList<DamageNumber> damageNumbers = new ArrayList<>();
 
     //GAME STATE
     public int gameState;
@@ -115,7 +115,7 @@ public class GamePanel extends JPanel implements Runnable{
         aSetter.setMonster();
         aSetter.setInteractiveTile();
         eManager.setup();
-
+        player.addObserver(ui);
         /*playMusic(0);   // 0 = BlueBoyAdventure.wav
         stopMusic();*/
         gameState = titleState;
@@ -276,6 +276,14 @@ public class GamePanel extends JPanel implements Runnable{
                     iTile[currentMap][i].update();
                 }
             }
+            for(int i = 0; i < damageNumbers.size(); i++) {
+                if(damageNumbers.get(i) != null) {
+                    damageNumbers.get(i).update();
+                    if(!damageNumbers.get(i).alive) {
+                        damageNumbers.remove(i);
+                    }
+                }
+            }
 
             eManager.update();
         }
@@ -383,6 +391,12 @@ public class GamePanel extends JPanel implements Runnable{
             for(int i = 0; i < entityList.size(); i++)
             {
                 entityList.get(i).draw(g2);
+            }
+
+            for (DamageNumber damageNumber : damageNumbers) {
+                if (damageNumber != null) {
+                    damageNumber.draw(g2, this);
+                }
             }
 
             //EMPTY ENTITY LIST
