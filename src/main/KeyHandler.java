@@ -1,524 +1,209 @@
 package main;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+public class KeyHandler {
 
-public class KeyHandler implements KeyListener {
-
-    GamePanel gp;
-    public boolean upPressed, downPressed, leftPressed,rightPressed,enterPressed,shotKeyPressed, spacePressed;
-    //DEBUG
+    private final Controls controls;
+    private final GamePanel gp;
+    public boolean upPressed, downPressed, leftPressed, rightPressed;
+    public boolean enterPressed, shotKeyPressed, spacePressed;
+    private boolean prevPause, prevCharacter, prevMap, prevEscape;
+    private boolean prevLeft, prevRight;
+    private boolean prevUp, prevDown, prevEnter;
     public boolean showDebugText = false;
     public boolean godModeOn = false;
 
-    @Override
-    public void keyTyped(KeyEvent e) {
-    }
-
-    public KeyHandler(GamePanel gp)
-    {
+    public KeyHandler(GamePanel gp, Controls controls) {
         this.gp = gp;
-    }
-    @Override
-    public void keyPressed(KeyEvent e) {
-        int code = e.getKeyCode();
-
-        //TITLE STATE
-        if(gp.gameState == gp.titleState) {
-            titleState(code);
-        }
-        // PLAY STATE
-        else if(gp.gameState == gp.playState)
-        {
-            playState(code);
-        }
-        // PAUSE STATE
-        else if(gp.gameState == gp.pauseState)
-        {
-            pauseState(code);
-        }
-        //DIALOGUE STATE
-        else if(gp.gameState == gp.dialogueState || gp.gameState == gp.cutsceneState)
-        {
-            dialogueState(code);
-        }
-        // CHARACTER STATE
-        else if(gp.gameState == gp.characterState)
-        {
-            characterState(code);
-        }
-        // OPTIONS STATE
-        else if(gp.gameState == gp.optionsState)
-        {
-            optionsState(code);
-        }
-        // GAMEOVER STATE
-        else if(gp.gameState == gp.gameOverState)
-        {
-            gameOverState(code);
-        }
-        // TRADE STATE
-        else if(gp.gameState == gp.tradeState)
-        {
-            tradeState(code);
-        }
-        // MAP STATE
-        else if(gp.gameState == gp.mapState)
-        {
-            mapState(code);
-        }
+        this.controls = controls;
     }
 
-    public void titleState(int code)
-    {
-        //MAIN MENU
-        if (gp.ui.titleScreenState == 0) {
-            if (code == KeyEvent.VK_W) {
-                gp.ui.commandNum--;
-                if (gp.ui.commandNum < 0) {
-                    gp.ui.commandNum = 2;
-                }
-            }
-            if (code == KeyEvent.VK_S) {
-                gp.ui.commandNum++;
-                if (gp.ui.commandNum > 2) {
-                    gp.ui.commandNum = 0;
-                }
-            }
-            if (code == KeyEvent.VK_ENTER) {
-                if (gp.ui.commandNum == 0) {
-                    gp.ui.titleScreenState = 1; // Character class selection screen
-                    //gp.gameState = gp.playState;
-                }
-                if (gp.ui.commandNum == 1) {
-                    //LOAD GAME
-                    gp.saveLoad.load();
-                    gp.gameState = gp.playState;
-                    gp.playMusic(0);
+    private boolean justPressed(boolean current, boolean previous) {
+        return current && !previous;
+    }
 
-                }
-                if (gp.ui.commandNum == 2) {
-                    System.exit(0);
-                }
-            }
+    public void update() {
+        upPressed = controls.isUpPressed();
+        downPressed = controls.isDownPressed();
+        leftPressed = controls.isLeftPressed();
+        rightPressed = controls.isRightPressed();
+        enterPressed = controls.isEnterPressed();
+        shotKeyPressed = controls.isShotPressed();
+        spacePressed = controls.isSpacePressed();
+
+        boolean pausePressed = controls.isPausePressed();
+        boolean characterPressed = controls.isCharacterPressed();
+        boolean mapPressed = controls.isMapPressed();
+        boolean escapePressed = controls.isEscapePressed();
+
+        if (gp.gameState == gp.titleState) {
+            handleTitleInput();
+        } else if (gp.gameState == gp.playState) {
+            handlePlayInput(pausePressed, characterPressed, mapPressed, escapePressed);
+        } else if (gp.gameState == gp.pauseState) {
+            handlePauseInput();
+        } else if (gp.gameState == gp.dialogueState || gp.gameState == gp.cutsceneState) {
+            handleDialogueInput();
+        } else if (gp.gameState == gp.characterState) {
+            handleCharacterInput();
+        } else if (gp.gameState == gp.optionsState) {
+            handleOptionsInput();
+        } else if (gp.gameState == gp.gameOverState) {
+            handleGameOverInput();
+        } else if (gp.gameState == gp.tradeState) {
+            handleTradeInput();
+        } else if (gp.gameState == gp.mapState) {
+            handleMapInput();
         }
-        //SECOND SCREEN // CHARACTER SELECTION
-        else if (gp.ui.titleScreenState == 1) {
-            if (code == KeyEvent.VK_W) {
-                gp.ui.commandNum--;
-                if (gp.ui.commandNum < 0) {
-                    gp.ui.commandNum = 3;
-                }
-            }
-            if (code == KeyEvent.VK_S) {
-                gp.ui.commandNum++;
-                if (gp.ui.commandNum > 3) {
-                    gp.ui.commandNum = 0;
-                }
-            }
 
-            if (code == KeyEvent.VK_ENTER) {
-                //FIGHTER
-                if (gp.ui.commandNum == 0) {
-                    System.out.println("Do some fighter specific stuff!");
-                    gp.gameState = gp.playState;
-                    gp.playMusic(0);
+        prevUp = upPressed;
+        prevDown = downPressed;
+        prevLeft = leftPressed;
+        prevRight = rightPressed;
+        prevEnter = enterPressed;
+        prevPause = pausePressed;
+        prevCharacter = characterPressed;
+        prevMap = mapPressed;
+        prevEscape = escapePressed;
+    }
+
+    private void handleTitleInput() {
+        boolean up = justPressed(upPressed, prevUp);
+        boolean down = justPressed(downPressed, prevDown);
+        boolean enter = justPressed(enterPressed, prevEnter);
+
+        if (up) {
+            gp.ui.commandNum--;
+            if (gp.ui.commandNum < 0) gp.ui.commandNum = 2;
+        }
+        if (down) {
+            gp.ui.commandNum++;
+            if (gp.ui.commandNum > 2) gp.ui.commandNum = 0;
+        }
+
+        if (enter) {
+            if (gp.ui.titleScreenState == 0) {
+                switch (gp.ui.commandNum) {
+                    case 0 -> gp.ui.titleScreenState = 1;
+                    case 1 -> {
+                        gp.saveLoad.load();
+                        gp.gameState = gp.playState;
+                        gp.playMusic(0);
+                    }
+                    case 2 -> System.exit(0);
                 }
-                //THIEF
-                if (gp.ui.commandNum == 1) {
-                    System.out.println("Do some thief specific stuff!");
-                    gp.gameState = gp.playState;
-                    gp.playMusic(0);
+            } else if (gp.ui.titleScreenState == 1) {
+                switch (gp.ui.commandNum) {
+                    case 0 -> System.out.println("Fighter chosen!");
+                    case 1 -> System.out.println("Thief chosen!");
+                    case 2 -> System.out.println("Sorcerer chosen!");
+                    case 3 -> {
+                        gp.ui.titleScreenState = 0;
+                        return;
+                    }
                 }
-                //SORCERER
-                if (gp.ui.commandNum == 2) {
-                    System.out.println("Do some sorcerer specific stuff!");
-                    gp.gameState = gp.playState;
-                    gp.playMusic(0);
-                }
-                //BACK
-                if (gp.ui.commandNum == 3) {
-                    gp.ui.titleScreenState = 0;
-                }
+                gp.gameState = gp.playState;
+                gp.playMusic(0);
             }
         }
     }
-    public void playState(int code)
-    {
-        if(code == KeyEvent.VK_W)
-        {
-            upPressed = true;
-        }
-        if(code == KeyEvent.VK_S)
-        {
-            downPressed = true;
-        }
-        if(code == KeyEvent.VK_A)
-        {
-            leftPressed = true;
-        }
-        if(code == KeyEvent.VK_D)
-        {
-            rightPressed = true;
-        }
-        if(code == KeyEvent.VK_P)
-        {
+
+
+    private void handlePlayInput(boolean pausePressed, boolean characterPressed, boolean mapPressed, boolean escapePressed) {
+        if (justPressed(pausePressed, prevPause)) {
             gp.gameState = gp.pauseState;
         }
-        if(code == KeyEvent.VK_C)
-        {
+        if (justPressed(characterPressed, prevCharacter)) {
             gp.gameState = gp.characterState;
         }
-        if(code == KeyEvent.VK_ENTER)
-        {
-            enterPressed = true;
-        }
-        if(code == KeyEvent.VK_F)
-        {
-            shotKeyPressed = true;
-        }
-        if(code == KeyEvent.VK_ESCAPE)
-        {
-            gp.gameState = gp.optionsState;
-        }
-        if(code == KeyEvent.VK_M)
-        {
+        if (justPressed(mapPressed, prevMap)) {
             gp.gameState = gp.mapState;
         }
-        if(code == KeyEvent.VK_X)
-        {
-            if(gp.map.miniMapOn == false)
-            {
-                gp.map.miniMapOn = true;
-            }
-            else
-            {
-                gp.map.miniMapOn = false;
-            }
-        }
-        if(code == KeyEvent.VK_SPACE)
-        {
-            spacePressed = true;
+        if (justPressed(escapePressed, prevEscape)) {
+            gp.gameState = gp.optionsState;
         }
 
-        //DEBUG
-        /*
-        if(code == KeyEvent.VK_T)   //Debug Menu
-        {
-            if(showDebugText == false)
-            {
-                showDebugText = true;
-            }
-            else if(showDebugText == true)
-            {
-                showDebugText = false;
-            }
-        }
-        if(code == KeyEvent.VK_R)   //Refresh Map without restarting game // Save Map File : in IntellijIDE "Ctrl + F9", in Eclipce "Ctrl + S"
-        {
-            switch (gp.currentMap)
-            {
-                case 0: gp.tileM.loadMap("/maps/worldV3.txt",0); break;
-                case 1: gp.tileM.loadMap("/maps/interior01.txt",1); break;
-            }
-        }
-        if(code == KeyEvent.VK_G)   //Debug Menu
-        {
-            if(godModeOn == false)
-            {
-                godModeOn = true;
-            }
-            else if(godModeOn == true)
-            {
-                godModeOn = false;
-            }
-        }*/
+        if (shotKeyPressed) shotKeyPressed = true;
+        if (spacePressed) spacePressed = true;
     }
-    public void pauseState(int code)
-    {
-        if(code == KeyEvent.VK_ESCAPE)
-        {
+
+    private void handlePauseInput() {
+        boolean pause = justPressed(controls.isPausePressed(), prevPause);
+        if (pause) {
             gp.gameState = gp.playState;
         }
     }
-    public void dialogueState(int code)
-    {
-        if(code == KeyEvent.VK_ENTER)
-        {
-            enterPressed = true;
-        }
+
+    private void handleDialogueInput() {
+        if (enterPressed) enterPressed = true;
     }
-    public void characterState(int code)
-    {
-        if(code == KeyEvent.VK_C)
-        {
-            gp.gameState = gp.playState;
+
+    private void handleCharacterInput() {
+        boolean up = justPressed(upPressed, prevUp);
+        boolean down = justPressed(downPressed, prevDown);
+        boolean left = justPressed(leftPressed, prevLeft);
+        boolean right = justPressed(rightPressed, prevRight);
+        boolean enter = justPressed(enterPressed, prevEnter);
+        boolean character = justPressed(controls.isCharacterPressed(), prevCharacter);
+
+        if (up) {
+            if (gp.ui.playerSlotRow > 0) gp.ui.playerSlotRow--;
+            gp.playSE(9);
+        }
+        if (down) {
+            if (gp.ui.playerSlotRow < 3) gp.ui.playerSlotRow++;
+            gp.playSE(9);
+        }
+        if (left) {
+            if (gp.ui.playerSlotCol > 0) gp.ui.playerSlotCol--;
+            gp.playSE(9);
+        }
+        if (right) {
+            if (gp.ui.playerSlotCol < 4) gp.ui.playerSlotCol++;
+            gp.playSE(9);
         }
 
-        if(code == KeyEvent.VK_ENTER)
-        {
+        if (enter) {
             gp.player.selectItem();
+            gp.playSE(9);
         }
-        playerInventory(code);
-    }
-    public void optionsState(int code)
-    {
-        if(code == KeyEvent.VK_ESCAPE)
-        {
+
+        if (character) {
             gp.gameState = gp.playState;
         }
-        if(code == KeyEvent.VK_ENTER)
-        {
-            enterPressed = true;
-        }
-        int maxCommandNum = 0;
-        switch (gp.ui.subState)
-        {
-            case 0: maxCommandNum = 5; break;
-            case 3: maxCommandNum = 1; break;
-        }
-        if(code == KeyEvent.VK_W)
-        {
-            gp.ui.commandNum--;
-            gp.playSE(9);
-            if(gp.ui.commandNum < 0)
-            {
-                gp.ui.commandNum = maxCommandNum;
-            }
-        }
-        if(code == KeyEvent.VK_S)
-        {
-            gp.ui.commandNum++;
-            gp.playSE(9);
-            if(gp.ui.commandNum > maxCommandNum)
-            {
-                gp.ui.commandNum = 0;
-            }
-        }
-        if(code == KeyEvent.VK_A)
-        {
-            if(gp.ui.subState == 0)
-            {
-                if(gp.ui.commandNum == 1 && gp.music.volumeScale > 0) //music
-                {
-                    gp.music.volumeScale--;
-                    gp.music.checkVolume();  //check for music maybe a song is already being played, but you dont need it for SE, when set a sound checkVolume will be execute.
-                    gp.playSE(9);
-                }
-                if(gp.ui.commandNum == 2 && gp.se.volumeScale > 0) //SE
-                {
-                    gp.se.volumeScale--;
-                    gp.playSE(9);
-                }
-            }
-        }
-        if(code == KeyEvent.VK_D)
-        {
-            if(gp.ui.subState == 0)
-            {
-                if(gp.ui.commandNum == 1 && gp.music.volumeScale < 5) //music
-                {
-                    gp.music.volumeScale++;
-                    gp.music.checkVolume();
-                    gp.playSE(9);
-                }
-                if(gp.ui.commandNum == 2 && gp.se.volumeScale < 5) //SE
-                {
-                    gp.se.volumeScale++;
-                    gp.playSE(9);
-                }
-            }
-        }
     }
-    public void gameOverState(int code)
-    {
-        if(code == KeyEvent.VK_W)
-        {
+
+
+    private void handleOptionsInput() {
+        if (enterPressed) enterPressed = true;
+    }
+
+    private void handleGameOverInput() {
+        if (upPressed) {
             gp.ui.commandNum--;
-            if(gp.ui.commandNum < 0)
-            {
-                gp.ui.commandNum = 1;
-            }
-            gp.playSE(9);
+            if (gp.ui.commandNum < 0) gp.ui.commandNum = 1;
         }
-        if(code == KeyEvent.VK_S)
-        {
+        if (downPressed) {
             gp.ui.commandNum++;
-            if(gp.ui.commandNum > 1)
-            {
-                gp.ui.commandNum = 0;
-            }
-            gp.playSE(9);
+            if (gp.ui.commandNum > 1) gp.ui.commandNum = 0;
         }
-        if(code == KeyEvent.VK_ENTER)
-        {
-            if(gp.ui.commandNum == 0) //RETRY, reset position, life, mana, monsters, npcs...
-            {
+        if (enterPressed) {
+            if (gp.ui.commandNum == 0) {
                 gp.gameState = gp.playState;
                 gp.resetGame(false);
                 gp.playMusic(0);
-            }
-            else if(gp.ui.commandNum == 1) //QUIT, reset everything
-            {
+            } else if (gp.ui.commandNum == 1) {
                 gp.ui.titleScreenState = 0;
                 gp.gameState = gp.titleState;
                 gp.resetGame(true);
             }
         }
     }
-    public void tradeState(int code)
-    {
-        if(code == KeyEvent.VK_ENTER)
-        {
-            enterPressed = true;
-        }
-        if(gp.ui.subState == 0)
-        {
-            if(code == KeyEvent.VK_W)
-            {
-                gp.ui.commandNum--;
-                if(gp.ui.commandNum < 0)
-                {
-                    gp.ui.commandNum = 2;
-                }
-                gp.playSE(9);
-            }
-            if(code == KeyEvent.VK_S)
-            {
-                gp.ui.commandNum++;
-                if(gp.ui.commandNum > 2)
-                {
-                    gp.ui.commandNum = 0;
-                }
-                gp.playSE(9);
-            }
-        }
-        if(gp.ui.subState == 1)
-        {
-            npcInventory(code);
-            if(code == KeyEvent.VK_ESCAPE)
-            {
-                gp.ui.subState = 0;
-            }
-        }
-        if(gp.ui.subState == 2)
-        {
-            playerInventory(code);
-            if(code == KeyEvent.VK_ESCAPE)
-            {
-                gp.ui.subState = 0;
-            }
-        }
-    }
-    public void mapState(int code)
-    {
-       if(code == KeyEvent.VK_M)
-       {
-           gp.gameState = gp.playState;
-       }
-    }
-    public void playerInventory(int code)
-    {
-        if(code == KeyEvent.VK_W)
-        {
-            if(gp.ui.playerSlotRow != 0)
-            {
-                gp.ui.playerSlotRow--;
-                gp.playSE(9);   //cursor.wav
-            }
-        }
-        if(code == KeyEvent.VK_A)
-        {
-            if(gp.ui.playerSlotCol !=0)
-            {
-                gp.ui.playerSlotCol--;
-                gp.playSE(9);
-            }
-        }
-        if(code == KeyEvent.VK_S)
-        {
-            if(gp.ui.playerSlotRow != 3)
-            {
-                gp.ui.playerSlotRow++;
-                gp.playSE(9);
-            }
-        }
-        if(code == KeyEvent.VK_D)
-        {
-            if(gp.ui.playerSlotCol != 4)
-            {
-                gp.ui.playerSlotCol++;
-                gp.playSE(9);
-            }
-        }
-    }
-    public void npcInventory(int code)
-    {
-        if(code == KeyEvent.VK_W)
-        {
-            if(gp.ui.npcSlotRow != 0)
-            {
-                gp.ui.npcSlotRow--;
-                gp.playSE(9);   //cursor.wav
-            }
-        }
-        if(code == KeyEvent.VK_A)
-        {
-            if(gp.ui.npcSlotCol !=0)
-            {
-                gp.ui.npcSlotCol--;
-                gp.playSE(9);
-            }
-        }
-        if(code == KeyEvent.VK_S)
-        {
-            if(gp.ui.npcSlotRow != 3)
-            {
-                gp.ui.npcSlotRow++;
-                gp.playSE(9);
-            }
-        }
-        if(code == KeyEvent.VK_D)
-        {
-            if(gp.ui.npcSlotCol != 4)
-            {
-                gp.ui.npcSlotCol++;
-                gp.playSE(9);
-            }
-        }
+
+    private void handleTradeInput() {
+        if (enterPressed) enterPressed = true;
     }
 
-    @Override
-    public void keyReleased(KeyEvent e) {
-        int code = e.getKeyCode();
-
-        if(code == KeyEvent.VK_W)
-        {
-            upPressed = false;
-        }
-        if(code == KeyEvent.VK_S)
-        {
-            downPressed = false;
-        }
-        if(code == KeyEvent.VK_A)
-        {
-            leftPressed = false;
-        }
-        if(code == KeyEvent.VK_D)
-        {
-            rightPressed = false;
-        }
-        if(code == KeyEvent.VK_F)
-        {
-            shotKeyPressed = false;
-        }
-        if(code == KeyEvent.VK_ENTER)
-        {
-            enterPressed = false;
-        }
-        if(code == KeyEvent.VK_SPACE)
-        {
-            spacePressed = false;
-        }
+    private void handleMapInput() {
+        if (enterPressed) gp.gameState = gp.playState;
     }
 }
