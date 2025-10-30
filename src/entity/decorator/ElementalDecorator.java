@@ -27,7 +27,6 @@ public class ElementalDecorator extends EquipmentDecorator {
 
         this.attackValue = baseEquipment.attackValue + elementType.bonusDamage;
 
-        this.name = elementType.name + " " + baseEquipment.name;
         updateDescription();
 
         this.price = (int)(baseEquipment.price * 1.8);

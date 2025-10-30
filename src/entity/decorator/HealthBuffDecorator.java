@@ -9,9 +9,7 @@ public class HealthBuffDecorator extends EquipmentDecorator {
     public HealthBuffDecorator(Entity equipment, int healthBonus) {
         super(equipment);
         this.healthBonus = healthBonus;
-        
-        // Update name
-        this.name = baseEquipment.name + " of Vitality";
+
         updateDescription();
         
         // Increase price

@@ -88,22 +88,10 @@ public class Player extends Entity{
      * Apply enchantment buffs to starting equipment
      */
     private void applyStartingBuffs() {
-        // Enhance weapon with damage buff
-        currentWeapon = new DamageBuffDecorator(currentWeapon, 2);
+        currentWeapon = entity.decorator.EquipmentBuilder.create(currentWeapon)
+        .asCommon() 
+        .build();
         
-        // Apply mana buff (if you want)
-        // currentWeapon = new ManaBuffDecorator(currentWeapon, 3);
-        // if(currentWeapon instanceof ManaBuffDecorator) {
-        //     ((ManaBuffDecorator) currentWeapon).applyBuff(this);
-        // }
-        
-        // Enhance shield with health buff (if you want)
-        // currentShield = new HealthBuffDecorator(currentShield, 2);
-        // if(currentShield instanceof HealthBuffDecorator) {
-        //     ((HealthBuffDecorator) currentShield).applyBuff(this);
-        // }
-        
-        // IMPORTANT: Recalculate stats after applying buffs
         attack = getAttack();
         defense = getDefense();
     }

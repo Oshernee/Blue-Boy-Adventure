@@ -10,7 +10,6 @@ public class ManaBuffDecorator extends EquipmentDecorator {
         super(equipment);
         this.manaBonus = manaBonus;
 
-        this.name = baseEquipment.name + " of Wisdom";
         updateDescription();
 
         this.price = (int)(baseEquipment.price * 1.3);

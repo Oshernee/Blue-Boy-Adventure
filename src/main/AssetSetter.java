@@ -2,6 +2,7 @@ package main;
 
 import data.Progress;
 import entity.NPC_BigRock;
+import entity.NPC_Enchanter;
 import entity.NPC_Merchant;
 import entity.NPC_OldMan;
 import monster.*;
@@ -111,6 +112,12 @@ public class AssetSetter {
         gp.npc[mapNum][i].worldX = gp.tileSize*21;
         gp.npc[mapNum][i].worldY = gp.tileSize*21;
         i++;
+        
+        // Add Enchanter to map 0
+        gp.npc[mapNum][i] = new NPC_Enchanter(gp);
+        gp.npc[mapNum][i].worldX = gp.tileSize*15;  // Place near spawn
+        gp.npc[mapNum][i].worldY = gp.tileSize*20;
+        i++;
 
         //MAP = 1
         mapNum = 1;
@@ -119,6 +126,11 @@ public class AssetSetter {
         gp.npc[mapNum][i] = new NPC_Merchant(gp);
         gp.npc[mapNum][i].worldX = gp.tileSize*12;
         gp.npc[mapNum][i].worldY = gp.tileSize*7;
+        i++;
+        
+        gp.npc[mapNum][i] = new NPC_Enchanter(gp);
+        gp.npc[mapNum][i].worldX = gp.tileSize*12;
+        gp.npc[mapNum][i].worldY = gp.tileSize*9;
         i++;
 
         mapNum = 2;

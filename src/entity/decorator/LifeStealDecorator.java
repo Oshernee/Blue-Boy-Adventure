@@ -10,7 +10,6 @@ public class LifeStealDecorator extends EquipmentDecorator {
         super(equipment);
         this.lifeStealPercent = lifeStealPercent;
 
-        this.name = "Vampiric " + baseEquipment.name;
         updateDescription();
 
         this.price = (int)(baseEquipment.price * 2.0);

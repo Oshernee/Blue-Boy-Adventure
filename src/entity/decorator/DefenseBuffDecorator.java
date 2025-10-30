@@ -13,7 +13,6 @@ public class DefenseBuffDecorator extends EquipmentDecorator {
         this.defenseValue = baseEquipment.defenseValue + bonusDefense;
         this.attackValue = baseEquipment.attackValue;
 
-        this.name = baseEquipment.name + " +DEF";
         updateDescription();
 
         this.price = (int)(baseEquipment.price * 1.4);

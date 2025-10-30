@@ -10,7 +10,6 @@ public class CriticalChanceDecorator extends EquipmentDecorator {
         super(equipment);
         this.critChance = Math.min(critChance, 100); 
 
-        this.name = baseEquipment.name + " of Precision";
         updateDescription();
 
         this.price = (int)(baseEquipment.price * 1.7);

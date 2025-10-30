@@ -1,6 +1,7 @@
 package main;
 
 import entity.Entity;
+import entity.decorator.EquipmentBuilder;
 import object.OBJ_Coin_Bronze;
 import object.OBJ_Heart;
 import object.OBJ_ManaCrystal;
@@ -270,7 +271,6 @@ public class UI {
             slotRow = npcSlotRow;
         }
 
-
         //DRAW FRAME
         drawSubWindow(frameX,frameY,frameWidth,frameHeight);
 
@@ -281,23 +281,22 @@ public class UI {
         int slotY = slotYstart;
         int slotSize = gp.tileSize + 3;
 
-
         //DRAW PLAYER'S ITEMS
         for(int i = 0; i < entity.inventory.size(); i++)
         {
-
             //EQUIP CURSOR
             if(entity.inventory.get(i) == entity.currentWeapon ||
-                    entity.inventory.get(i) == entity.currentShield || entity.inventory.get(i) == entity.currentLight)
+                    entity.inventory.get(i) == entity.currentShield || 
+                    entity.inventory.get(i) == entity.currentLight)
             {
                 g2.setColor(new Color(240,190,90));
                 g2.fillRoundRect(slotX,slotY, gp.tileSize, gp.tileSize,10,10 );
             }
 
-            g2.drawImage(entity.inventory.get(i).down1, slotX,slotY,null);  //draw item
+            g2.drawImage(entity.inventory.get(i).down1, slotX,slotY,null);
 
             //DISPLAY AMOUNT
-            if(entity == gp.player && entity.inventory.get(i).amount > 1)  //merchant npc's inventory cannot stack items
+            if(entity == gp.player && entity.inventory.get(i).amount > 1)
             {
                 g2.setFont(g2.getFont().deriveFont(32f));
                 int amountX;
@@ -313,7 +312,6 @@ public class UI {
                 //NUMBER
                 g2.setColor(Color.white);
                 g2.drawString(s,amountX-3,amountY-3);
-
             }
 
             slotX += slotSize;
@@ -340,25 +338,27 @@ public class UI {
             g2.setStroke(new BasicStroke(3));
             g2.drawRoundRect(cursorX,cursorY,cursorWidth,cursorHeight,10,10);
 
-            //DESCRIPTION FRAME
+            //DESCRIPTION FRAME - MADE BIGGER
             int dFrameX = frameX;
             int dFrameY = frameY + frameHeight;
             int dFrameWidth = frameWidth;
-            int dFrameHeight = gp.tileSize * 3;
+            int dFrameHeight = gp.tileSize * 4; // INCREASED from 3 to 4 tiles
 
             //DRAW DESCRIPTION TEXT
             int textX = dFrameX + 20;
             int textY = dFrameY + gp.tileSize;
-            g2.setFont(g2.getFont().deriveFont(28F));
+            g2.setFont(g2.getFont().deriveFont(24F)); // Slightly smaller font (was 28F)
 
             int itemIndex = getItemIndexOnSlot(slotCol, slotRow);
             if(itemIndex < entity.inventory.size())
             {
                 drawSubWindow(dFrameX,dFrameY,dFrameWidth,dFrameHeight);
+                
+                int lineHeight = 28; // Line spacing
                 for(String line : entity.inventory.get(itemIndex).description.split("\n"))
                 {
                     g2.drawString(line,textX,textY);
-                    textY += 32;
+                    textY += lineHeight;
                 }
             }
         }
@@ -603,6 +603,298 @@ public class UI {
             }
         }
     }
+    public void drawEnchantScreen()
+    {
+        switch(subState)
+        {
+            case 0: enchant_select(); break;
+            case 1: enchant_selectItem(); break;
+            case 2: enchant_selectEnchantment(); break;
+        }
+        gp.keyH.enterPressed = false;
+    }
+    public void enchant_select()
+    {
+        npc.dialogueSet = 0;
+        drawDialogueScreen();
+
+        //DRAW WINDOW
+        int x = gp.tileSize * 15;
+        int y = gp.tileSize * 4;
+        int width = gp.tileSize * 3;
+        int height = (int)(gp.tileSize * 3.5);
+        drawSubWindow(x, y, width, height);
+
+        //DRAW TEXTS
+        x += gp.tileSize;
+        y += gp.tileSize;
+        g2.drawString("Enchant", x, y);
+        if(commandNum == 0)
+        {
+            g2.drawString(">", x - 24, y);
+            if(gp.keyH.enterPressed == true)
+            {
+                subState = 1;
+            }
+        }
+        y += gp.tileSize;
+        g2.drawString("Leave", x, y);
+        if(commandNum == 1)
+        {
+            g2.drawString(">", x - 24, y);
+            if(gp.keyH.enterPressed == true)
+            {
+                commandNum = 0;
+                npc.startDialogue(npc, 1);
+            }
+        }
+    }
+    public void enchant_selectItem()
+    {
+        //DRAW PLAYER INVENTORY
+        drawInventory(gp.player, true);
+        
+        // DRAW HINT WINDOW
+        int x = gp.tileSize * 2;
+        int y = gp.tileSize * 9;
+        int width = gp.tileSize * 6;
+        int height = gp.tileSize * 2;
+        drawSubWindow(x, y, width, height);
+        g2.drawString("[ESC] Back", x + 24, y + 60);
+
+        // DRAW INSTRUCTION WINDOW
+        x = gp.tileSize * 12;
+        y = gp.tileSize * 9;
+        width = gp.tileSize * 6;
+        height = gp.tileSize * 2;
+        drawSubWindow(x, y, width, height);
+        g2.drawString("Select weapon", x + 24, y + 60);
+
+        // SELECT AN ITEM
+        int itemIndex = getItemIndexOnSlot(playerSlotCol, playerSlotRow);
+        if(itemIndex < gp.player.inventory.size())
+        {
+            if(gp.keyH.enterPressed == true)
+            {
+                Entity selectedItem = gp.player.inventory.get(itemIndex);
+                
+                // Check if it's a weapon (has attack value)
+                if(selectedItem.attackValue > 0)
+                {
+                    subState = 2;
+                }
+                else
+                {
+                    subState = 0;
+                    npc.startDialogue(npc, 3);
+                }
+            }
+        }
+    }
+    public void enchant_selectEnchantment()
+    {
+        //DRAW PLAYER INVENTORY
+        drawInventory(gp.player, false);
+        
+        // DRAW HINT WINDOW
+        int x = gp.tileSize * 2;
+        int y = gp.tileSize * 9;
+        int width = gp.tileSize * 6;
+        int height = gp.tileSize * 2;
+        drawSubWindow(x, y, width, height);
+        g2.drawString("[ESC] Back", x + 24, y + 60);
+
+        // DRAW ENCHANTMENT SELECTION WINDOW
+        x = gp.tileSize * 10;
+        y = gp.tileSize * 3;
+        width = gp.tileSize * 8;
+        height = gp.tileSize * 8;
+        drawSubWindow(x, y, width, height);
+        
+        // DRAW TITLE
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
+        g2.drawString("Select Enchantment", x + gp.tileSize, y + 30);
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 16F));
+        
+        // DRAW ENCHANTMENT OPTIONS
+        x += gp.tileSize;
+        y += gp.tileSize * 2;
+        int lineHeight = 40;
+        
+        String[] enchantments = {
+            "Common (+1 Damage)",
+            "Rare (+3 Damage, 10% Crit)",
+            "Epic (+5 Damage, 15% Crit, +2 HP)",
+            "Legendary (+7 Damage, 25% Crit, 12% LifeSteal)",
+            "Vampiric (+3 Damage, 20% LifeSteal, Poison)",
+            "Berserker (+6 Damage, 30% Crit, +2 Speed)",
+            "Flaming (+5 Damage, 15% Crit, Fire)",
+            "Frozen (+3 Damage, +3 Defense, +3 HP, Ice)"
+        };
+        
+        for(int i = 0; i < enchantments.length; i++)
+        {
+            g2.drawString(enchantments[i], x + 24, y);
+            if(commandNum == i)
+            {
+                g2.drawString(">", x, y);
+                if(gp.keyH.enterPressed == true)
+                {
+                    applyEnchantment(i);
+                    subState = 0;
+                    commandNum = 0;
+                    gp.gameState = gp.playState;
+                    gp.playSE(4); // Success sound
+                }
+            }
+            y += lineHeight;
+        }
+    }
+    private void applyEnchantment(int enchantType) {
+    // Get the selected item
+    int itemIndex = getItemIndexOnSlot(playerSlotCol, playerSlotRow);
+    
+    if(itemIndex >= gp.player.inventory.size()) {
+        return;
+    }
+    
+    Entity selectedItem = gp.player.inventory.get(itemIndex);
+    
+    // Check if it's enchantable
+    if(selectedItem.type != gp.player.type_sword && 
+       selectedItem.type != gp.player.type_axe &&
+       selectedItem.type != gp.player.type_pickaxe &&
+       selectedItem.type != gp.player.type_shield) {
+        return;
+    }
+    
+    // Get the ORIGINAL base item (unwrapped)
+    Entity baseItem = selectedItem.originalItem != null ? selectedItem.originalItem : selectedItem;
+    
+    // Create NEW enchanted item from the base
+    Entity enchantedItem = null;
+    
+    switch(enchantType) {
+        case 0: // Common
+            enchantedItem = EquipmentBuilder.create(baseItem)
+                .asCommon()
+                .build();
+            break;
+        case 1: // Rare
+            enchantedItem = EquipmentBuilder.create(baseItem)
+                .asRare()
+                .build();
+            break;
+        case 2: // Epic
+            enchantedItem = EquipmentBuilder.create(baseItem)
+                .asEpic()
+                .build();
+            break;
+        case 3: // Legendary
+            enchantedItem = EquipmentBuilder.create(baseItem)
+                .asLegendary()
+                .build();
+            break;
+        case 4: // Vampiric
+            enchantedItem = EquipmentBuilder.create(baseItem)
+                .asVampiric()
+                .build();
+            break;
+        case 5: // Berserker
+            enchantedItem = EquipmentBuilder.create(baseItem)
+                .asBerserker()
+                .build();
+            break;
+        case 6: // Flaming
+            enchantedItem = EquipmentBuilder.create(baseItem)
+                .asFlaming()
+                .build();
+            break;
+        case 7: // Frozen
+            enchantedItem = EquipmentBuilder.create(baseItem)
+                .asFrozen()
+                .build();
+            break;
+    }
+    
+    if(enchantedItem == null) return;
+    
+    // Replace the item in inventory
+    gp.player.inventory.set(itemIndex, enchantedItem);
+    
+    // Update current weapon/shield if it was the enchanted item
+    if(selectedItem == gp.player.currentWeapon) {
+        gp.player.currentWeapon = enchantedItem;
+        gp.player.attack = gp.player.getAttack();
+    }
+    if(selectedItem == gp.player.currentShield) {
+        gp.player.currentShield = enchantedItem;
+        gp.player.defense = gp.player.getDefense();
+    }
+    
+    // Play sound and show message
+    gp.playSE(4);
+    gp.ui.addMessage("Enchanted: " + enchantedItem.name);
+}
+
+// Helper method to unwrap all decorators and get the base item
+private Entity getBaseItem(Entity item) {
+    // Create a fresh copy of the base item type
+    Entity baseItem = null;
+    
+    // Determine the base item type and create a new instance
+    String baseName = getBaseName(item.name);
+    
+    // Match base item by name
+    if(baseName.contains("Normal Sword")) {
+        baseItem = new object.OBJ_Sword_Normal(gp);
+    }
+    else if(baseName.contains("Axe")) {
+        baseItem = new object.OBJ_Axe(gp);
+    }
+    else if(baseName.contains("Pickaxe")) {
+        baseItem = new object.OBJ_Pickaxe(gp);
+    }
+    else if(baseName.contains("Wood Shield") || baseName.contains("Wooden Shield")) {
+        baseItem = new object.OBJ_Shield_Wood(gp);
+    }
+    else if(baseName.contains("Blue Shield")) {
+        baseItem = new object.OBJ_Shield_Blue(gp);
+    }
+    else {
+        // Default: return a copy of the current item (fallback)
+        baseItem = item;
+    }
+    
+    return baseItem;
+}
+
+// Helper to get base name without enchantment prefixes
+private String getBaseName(String name) {
+    String baseName = name.trim();
+    
+    // Remove all known prefixes
+    String[] prefixes = {
+        "Common ", "Uncommon ", "Rare ", "Epic ", "Legendary ",
+        "Vampiric ", "Berserker ", "Tank ", "Mage ",
+        "Flaming ", "Frozen ", "Thundering ", "Poisonous "
+    };
+    
+    boolean foundPrefix;
+    do {
+        foundPrefix = false;
+        for(String prefix : prefixes) {
+            if(baseName.startsWith(prefix)) {
+                baseName = baseName.substring(prefix.length()).trim();
+                foundPrefix = true;
+                break;
+            }
+        }
+    } while(foundPrefix);
+    
+    return baseName;
+}
+
     public int getItemIndexOnSlot(int slotCol, int slotRow)
     {
         int itemIndex = slotCol + (slotRow * 5);
@@ -1266,6 +1558,11 @@ public class UI {
             if(gp.gameState == gp.sleepState)
             {
                 drawSleepScreen();
+            }
+            //ENCHANT STATE
+            if(gp.gameState == gp.enchantState)
+            {
+                drawEnchantScreen();
             }
         }
     }

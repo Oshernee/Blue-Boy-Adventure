@@ -11,6 +11,13 @@ public abstract class EquipmentDecorator extends Entity {
         super(equipment.getGp());
         this.baseEquipment = equipment;
         
+        // Copy original item reference
+        if(equipment.originalItem != null) {
+            this.originalItem = equipment.originalItem;
+        } else {
+            this.originalItem = equipment; // This IS the original
+        }
+        
         // Copy ALL base properties
         this.type = equipment.type;
         this.name = equipment.name;

@@ -10,8 +10,7 @@ public class SpeedBuffDecorator extends EquipmentDecorator {
     public SpeedBuffDecorator(Entity equipment, int speedBonus) {
         super(equipment);
         this.speedBonus = speedBonus;
-        
-        this.name = baseEquipment.name + " of Swiftness";
+
         updateDescription();
 
         this.price = (int)(baseEquipment.price * 1.6);

@@ -977,4 +977,5 @@ public class Entity {
         }
         return  index;
     }
+    public Entity originalItem; // Store reference to unwrapped base item
 }
