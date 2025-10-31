@@ -47,7 +47,8 @@ public class GamePanel extends JPanel implements Runnable{
     //SYSTEM
     public TileManager tileM = new TileManager(this);
     KeyboardAdapter keyboard = new KeyboardAdapter();
-    public KeyHandler keyH = new KeyHandler(this, keyboard);
+    ControllerAdapter controller = new ControllerAdapter();
+    public KeyHandler keyH = new KeyHandler(this, keyboard, controller);
     public EventHandler eHandler = new EventHandler(this);
     Sound music = new Sound(); // Created 2 different objects for Sound Effect and Music. If you use 1 object SE or Music stops sometimes.
     Sound se = new Sound();

@@ -2,7 +2,8 @@ package main;
 
 public class KeyHandler {
 
-    private final Controls controls;
+    private final Controls keyboard;
+    private final Controls controller;
     private final GamePanel gp;
     public boolean upPressed, downPressed, leftPressed, rightPressed;
     public boolean enterPressed, shotKeyPressed, spacePressed;
@@ -12,9 +13,10 @@ public class KeyHandler {
     public boolean showDebugText = false;
     public boolean godModeOn = false;
 
-    public KeyHandler(GamePanel gp, Controls controls) {
+    public KeyHandler(GamePanel gp, Controls keyboard, Controls controller) {
         this.gp = gp;
-        this.controls = controls;
+        this.keyboard = keyboard;
+        this.controller = controller;
     }
 
     private boolean justPressed(boolean current, boolean previous) {
@@ -22,18 +24,22 @@ public class KeyHandler {
     }
 
     public void update() {
-        upPressed = controls.isUpPressed();
-        downPressed = controls.isDownPressed();
-        leftPressed = controls.isLeftPressed();
-        rightPressed = controls.isRightPressed();
-        enterPressed = controls.isEnterPressed();
-        shotKeyPressed = controls.isShotPressed();
-        spacePressed = controls.isSpacePressed();
+        keyboard.update();
+        controller.update();
 
-        boolean pausePressed = controls.isPausePressed();
-        boolean characterPressed = controls.isCharacterPressed();
-        boolean mapPressed = controls.isMapPressed();
-        boolean escapePressed = controls.isEscapePressed();
+        upPressed = keyboard.isUpPressed() || controller.isUpPressed();
+        downPressed = keyboard.isDownPressed() || controller.isDownPressed();
+        leftPressed = keyboard.isLeftPressed() || controller.isLeftPressed();
+        rightPressed = keyboard.isRightPressed() || controller.isRightPressed();
+
+        enterPressed = keyboard.isEnterPressed() || controller.isEnterPressed();
+        shotKeyPressed = keyboard.isShotPressed() || controller.isShotPressed();
+        spacePressed = keyboard.isSpacePressed() || controller.isSpacePressed();
+
+        boolean pausePressed = keyboard.isPausePressed() || controller.isPausePressed();
+        boolean characterPressed = keyboard.isCharacterPressed() || controller.isCharacterPressed();
+        boolean mapPressed = keyboard.isMapPressed() || controller.isMapPressed();
+        boolean escapePressed = keyboard.isEscapePressed() || controller.isEscapePressed();
 
         if (gp.gameState == gp.titleState) {
             handleTitleInput();
@@ -127,7 +133,10 @@ public class KeyHandler {
     }
 
     private void handlePauseInput() {
-        boolean pause = justPressed(controls.isPausePressed(), prevPause);
+        boolean pause = justPressed(
+                keyboard.isPausePressed() || controller.isPausePressed(),
+                prevPause
+        );
         if (pause) {
             gp.gameState = gp.playState;
         }
@@ -143,7 +152,10 @@ public class KeyHandler {
         boolean left = justPressed(leftPressed, prevLeft);
         boolean right = justPressed(rightPressed, prevRight);
         boolean enter = justPressed(enterPressed, prevEnter);
-        boolean character = justPressed(controls.isCharacterPressed(), prevCharacter);
+        boolean character = justPressed(
+                keyboard.isCharacterPressed() || controller.isCharacterPressed(),
+                prevCharacter
+        );
 
         if (up) {
             if (gp.ui.playerSlotRow > 0) gp.ui.playerSlotRow--;
@@ -171,7 +183,6 @@ public class KeyHandler {
             gp.gameState = gp.playState;
         }
     }
-
 
     private void handleOptionsInput() {
         if (enterPressed) enterPressed = true;
