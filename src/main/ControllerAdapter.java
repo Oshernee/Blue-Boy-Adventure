@@ -11,6 +11,7 @@ public class ControllerAdapter implements Controls {
     private boolean enterPressed, shotPressed, spacePressed;
 
     private Controller controller;
+    private static final float DEADZONE = 0.3f;
 
     public ControllerAdapter() {
         Controller[] controllers = ControllerEnvironment
@@ -18,14 +19,21 @@ public class ControllerAdapter implements Controls {
                 .getControllers();
 
         for (Controller c : controllers) {
+            String name = c.getName().toLowerCase();
             if (c.getType() == Controller.Type.GAMEPAD || c.getType() == Controller.Type.STICK) {
-                controller = c;
-                System.out.println("Controller connected: " + c.getName());
-                break;
+                if (name.contains("xbox") || name.contains("360") || name.contains("xinput")) {
+                    controller = c;
+                    break;
+                }
+                if (controller == null && name.contains("wireless controller")) {
+                    controller = c;
+                }
             }
         }
 
-        if (controller == null) {
+        if (controller != null) {
+            System.out.println("Controller connected: " + controller.getName() + " | Type: " + controller.getType());
+        } else {
             System.out.println("No controller detected!");
         }
     }
@@ -37,7 +45,7 @@ public class ControllerAdapter implements Controls {
         controller.poll();
         Component[] components = controller.getComponents();
 
-        upPressed = downPressed = leftPressed = rightPressed = false;
+        resetInputs();
 
         for (Component c : components) {
             float value = c.getPollData();
@@ -45,60 +53,48 @@ public class ControllerAdapter implements Controls {
 
             switch (id) {
                 case "x" -> {
-                    leftPressed = value < -0.5f;
-                    rightPressed = value > 0.5f;
+                    if (value < -DEADZONE) leftPressed = true;
+                    else if (value > DEADZONE) rightPressed = true;
                 }
                 case "y" -> {
-                    upPressed = value < -0.5f;
-                    downPressed = value > 0.5f;
+                    if (value < -DEADZONE) upPressed = true;
+                    else if (value > DEADZONE) downPressed = true;
                 }
                 case "pov" -> {
-                    upPressed = value == 0.25f;
-                    rightPressed = value == 0.5f;
-                    downPressed = value == 0.75f;
-                    leftPressed = value == 1.0f;
+                    if (value == 0.25f) upPressed = true;
+                    else if (value == 0.5f) rightPressed = true;
+                    else if (value == 0.75f) downPressed = true;
+                    else if (value == 1.0f) leftPressed = true;
                 }
             }
 
             switch (id) {
-                case "0" -> enterPressed = value == 1.0f;       // A
-                case "1" -> shotPressed = value == 1.0f;        // B
-                case "2" -> spacePressed = value == 1.0f;       // X
-                case "3" -> pausePressed = value == 1.0f;       // Y
-                case "4" -> characterPressed = value == 1.0f;   // LB
-                case "5" -> mapPressed = value == 1.0f;         // RB
-                case "7" -> escapePressed = value == 1.0f;      // Start/Menu
+                case "0" -> enterPressed = value == 1.0f;
+                case "1" -> shotPressed = value == 1.0f;
+                case "2" -> spacePressed = value == 1.0f;
+                case "3" -> pausePressed = value == 1.0f;
+                case "4" -> characterPressed = value == 1.0f;
+                case "5" -> mapPressed = value == 1.0f;
+                case "7" -> escapePressed = value == 1.0f;
             }
         }
     }
 
-    @Override
-    public boolean isUpPressed() { return upPressed; }
-    @Override
-    public boolean isDownPressed() { return downPressed; }
-    @Override
-    public boolean isLeftPressed() { return leftPressed; }
-    @Override
-    public boolean isRightPressed() { return rightPressed; }
-    @Override
-    public boolean isEnterPressed() { return enterPressed; }
-    @Override
-    public boolean isShotPressed() { return shotPressed; }
-    @Override
-    public boolean isSpacePressed() { return spacePressed; }
-    @Override
-    public boolean isPausePressed() { return pausePressed; }
-    @Override
-    public boolean isCharacterPressed() { return characterPressed; }
-    @Override
-    public boolean isMapPressed() { return mapPressed; }
-    @Override
-    public boolean isEscapePressed() { return escapePressed; }
+    private void resetInputs() {
+        upPressed = downPressed = leftPressed = rightPressed = false;
+        enterPressed = shotPressed = spacePressed = false;
+        pausePressed = characterPressed = mapPressed = escapePressed = false;
+    }
 
-//    @Override
-//    public void resetKeys() {
-//        upPressed = downPressed = leftPressed = rightPressed = false;
-//        enterPressed = shotPressed = spacePressed = false;
-//        pausePressed = characterPressed = mapPressed = escapePressed = false;
-//    }
+    @Override public boolean isUpPressed() { return upPressed; }
+    @Override public boolean isDownPressed() { return downPressed; }
+    @Override public boolean isLeftPressed() { return leftPressed; }
+    @Override public boolean isRightPressed() { return rightPressed; }
+    @Override public boolean isEnterPressed() { return enterPressed; }
+    @Override public boolean isShotPressed() { return shotPressed; }
+    @Override public boolean isSpacePressed() { return spacePressed; }
+    @Override public boolean isPausePressed() { return pausePressed; }
+    @Override public boolean isCharacterPressed() { return characterPressed; }
+    @Override public boolean isMapPressed() { return mapPressed; }
+    @Override public boolean isEscapePressed() { return escapePressed; }
 }
