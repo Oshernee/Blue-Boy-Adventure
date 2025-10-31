@@ -77,17 +77,20 @@ public class KeyHandler {
         boolean down = justPressed(downPressed, prevDown);
         boolean enter = justPressed(enterPressed, prevEnter);
 
-        if (up) {
-            gp.ui.commandNum--;
-            if (gp.ui.commandNum < 0) gp.ui.commandNum = 2;
-        }
-        if (down) {
-            gp.ui.commandNum++;
-            if (gp.ui.commandNum > 2) gp.ui.commandNum = 0;
-        }
+        // --- Main title screen ---
+        if (gp.ui.titleScreenState == 0) {
+            if (up) {
+                gp.ui.commandNum--;
+                if (gp.ui.commandNum < 0) gp.ui.commandNum = 2;
+                gp.playSE(9);
+            }
+            if (down) {
+                gp.ui.commandNum++;
+                if (gp.ui.commandNum > 2) gp.ui.commandNum = 0;
+                gp.playSE(9);
+            }
 
-        if (enter) {
-            if (gp.ui.titleScreenState == 0) {
+            if (enter) {
                 switch (gp.ui.commandNum) {
                     case 0 -> gp.ui.titleScreenState = 1;
                     case 1 -> {
@@ -97,7 +100,25 @@ public class KeyHandler {
                     }
                     case 2 -> System.exit(0);
                 }
-            } else if (gp.ui.titleScreenState == 1) {
+            }
+        }
+
+        // --- Class selection screen ---
+        else if (gp.ui.titleScreenState == 1) {
+            int maxClasses = 3; // Fighter, Thief, Sorcerer, Back (0–3)
+
+            if (up) {
+                gp.ui.commandNum--;
+                if (gp.ui.commandNum < 0) gp.ui.commandNum = maxClasses;
+                gp.playSE(9);
+            }
+            if (down) {
+                gp.ui.commandNum++;
+                if (gp.ui.commandNum > maxClasses) gp.ui.commandNum = 0;
+                gp.playSE(9);
+            }
+
+            if (enter) {
                 switch (gp.ui.commandNum) {
                     case 0 -> System.out.println("Fighter chosen!");
                     case 1 -> System.out.println("Thief chosen!");
@@ -113,33 +134,16 @@ public class KeyHandler {
         }
     }
 
-
     private void handlePlayInput(boolean pausePressed, boolean characterPressed, boolean mapPressed, boolean escapePressed) {
-        if (justPressed(pausePressed, prevPause)) {
-            gp.gameState = gp.pauseState;
-        }
-        if (justPressed(characterPressed, prevCharacter)) {
-            gp.gameState = gp.characterState;
-        }
-        if (justPressed(mapPressed, prevMap)) {
-            gp.gameState = gp.mapState;
-        }
-        if (justPressed(escapePressed, prevEscape)) {
-            gp.gameState = gp.optionsState;
-        }
-
-        if (shotKeyPressed) shotKeyPressed = true;
-        if (spacePressed) spacePressed = true;
+        if (justPressed(pausePressed, prevPause)) gp.gameState = gp.pauseState;
+        if (justPressed(characterPressed, prevCharacter)) gp.gameState = gp.characterState;
+        if (justPressed(mapPressed, prevMap)) gp.gameState = gp.mapState;
+        if (justPressed(escapePressed, prevEscape)) gp.gameState = gp.optionsState;
     }
 
     private void handlePauseInput() {
-        boolean pause = justPressed(
-                keyboard.isPausePressed() || controller.isPausePressed(),
-                prevPause
-        );
-        if (pause) {
+        if (justPressed(keyboard.isPausePressed() || controller.isPausePressed(), prevPause))
             gp.gameState = gp.playState;
-        }
     }
 
     private void handleDialogueInput() {
@@ -157,55 +161,103 @@ public class KeyHandler {
                 prevCharacter
         );
 
-        if (up) {
-            if (gp.ui.playerSlotRow > 0) gp.ui.playerSlotRow--;
+        if (up && gp.ui.playerSlotRow > 0) {
+            gp.ui.playerSlotRow--;
             gp.playSE(9);
         }
-        if (down) {
-            if (gp.ui.playerSlotRow < 3) gp.ui.playerSlotRow++;
+        if (down && gp.ui.playerSlotRow < 3) {
+            gp.ui.playerSlotRow++;
             gp.playSE(9);
         }
-        if (left) {
-            if (gp.ui.playerSlotCol > 0) gp.ui.playerSlotCol--;
+        if (left && gp.ui.playerSlotCol > 0) {
+            gp.ui.playerSlotCol--;
             gp.playSE(9);
         }
-        if (right) {
-            if (gp.ui.playerSlotCol < 4) gp.ui.playerSlotCol++;
+        if (right && gp.ui.playerSlotCol < 4) {
+            gp.ui.playerSlotCol++;
             gp.playSE(9);
         }
-
         if (enter) {
             gp.player.selectItem();
             gp.playSE(9);
         }
-
-        if (character) {
-            gp.gameState = gp.playState;
-        }
+        if (character) gp.gameState = gp.playState;
     }
 
     private void handleOptionsInput() {
-        if (enterPressed) enterPressed = true;
+        boolean enter = justPressed(enterPressed, prevEnter);
+        boolean up = justPressed(upPressed, prevUp);
+        boolean down = justPressed(downPressed, prevDown);
+        boolean escape = justPressed(
+                keyboard.isEscapePressed() || controller.isEscapePressed(),
+                prevEscape
+        );
+
+        int maxOptions = 5;
+
+        if (up) {
+            gp.ui.commandNum--;
+            if (gp.ui.commandNum < 0) gp.ui.commandNum = maxOptions;
+            gp.playSE(9);
+        }
+        if (down) {
+            gp.ui.commandNum++;
+            if (gp.ui.commandNum > maxOptions) gp.ui.commandNum = 0;
+            gp.playSE(9);
+        }
+
+        int selected = gp.ui.commandNum;
+
+        if (enter && selected == 0) {
+            gp.fullScreenOn = !gp.fullScreenOn;
+            gp.config.saveConfig();
+            gp.playSE(9);
+        }
+
+        if (enter && selected == 3) {
+            gp.playSE(9);
+        }
+
+        if (enter && selected == 4) {
+            gp.gameState = gp.titleState;
+            gp.stopMusic();
+            gp.playSE(9);
+        }
+
+        if ((enter && selected == 5) || escape) {
+            gp.gameState = gp.playState;
+            gp.playSE(9);
+        }
     }
 
     private void handleGameOverInput() {
-        if (upPressed) {
+        boolean up = justPressed(upPressed, prevUp);
+        boolean down = justPressed(downPressed, prevDown);
+        boolean enter = justPressed(enterPressed, prevEnter);
+
+        if (up) {
             gp.ui.commandNum--;
             if (gp.ui.commandNum < 0) gp.ui.commandNum = 1;
+            gp.playSE(9);
         }
-        if (downPressed) {
+        if (down) {
             gp.ui.commandNum++;
             if (gp.ui.commandNum > 1) gp.ui.commandNum = 0;
+            gp.playSE(9);
         }
-        if (enterPressed) {
-            if (gp.ui.commandNum == 0) {
-                gp.gameState = gp.playState;
-                gp.resetGame(false);
-                gp.playMusic(0);
-            } else if (gp.ui.commandNum == 1) {
-                gp.ui.titleScreenState = 0;
-                gp.gameState = gp.titleState;
-                gp.resetGame(true);
+
+        if (enter) {
+            switch (gp.ui.commandNum) {
+                case 0 -> {
+                    gp.gameState = gp.playState;
+                    gp.resetGame(false);
+                    gp.playMusic(0);
+                }
+                case 1 -> {
+                    gp.ui.titleScreenState = 0;
+                    gp.gameState = gp.titleState;
+                    gp.resetGame(true);
+                }
             }
         }
     }
