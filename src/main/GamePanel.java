@@ -46,9 +46,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     //SYSTEM
     public TileManager tileM = new TileManager(this);
-    KeyboardAdapter keyboard = new KeyboardAdapter();
-    ControllerAdapter controller = new ControllerAdapter();
-    public KeyHandler keyH = new KeyHandler(this, keyboard, controller);
+    public KeyHandler keyH = new KeyHandler(this);
     public EventHandler eHandler = new EventHandler(this);
     Sound music = new Sound(); // Created 2 different objects for Sound Effect and Music. If you use 1 object SE or Music stops sometimes.
     Sound se = new Sound();
@@ -107,7 +105,6 @@ public class GamePanel extends JPanel implements Runnable{
         this.setPreferredSize(new Dimension(screenWidth, screenHeight)); // JPanel size
         this.setBackground(Color.black);
         this.setDoubleBuffered(true); // improve game's rendering performance
-        this.addKeyListener(keyboard);
         this.setFocusable(true);
     }
     public void setupGame()

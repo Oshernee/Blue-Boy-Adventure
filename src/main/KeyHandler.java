@@ -13,10 +13,11 @@ public class KeyHandler {
     public boolean showDebugText = false;
     public boolean godModeOn = false;
 
-    public KeyHandler(GamePanel gp, Controls keyboard, Controls controller) {
+    public KeyHandler(GamePanel gp) {
         this.gp = gp;
-        this.keyboard = keyboard;
-        this.controller = controller;
+        this.keyboard = new KeyboardAdapter();
+        this.controller = new ControllerAdapter();
+        gp.addKeyListener((KeyboardAdapter) keyboard);
     }
 
     private boolean justPressed(boolean current, boolean previous) {
@@ -147,7 +148,9 @@ public class KeyHandler {
     }
 
     private void handleDialogueInput() {
-        if (enterPressed) enterPressed = true;
+        if (justPressed(keyboard.isEnterPressed() || controller.isEnterPressed(), prevEnter)) {
+            gp.gameState = gp.playState;
+        }
     }
 
     private void handleCharacterInput() {
@@ -263,10 +266,14 @@ public class KeyHandler {
     }
 
     private void handleTradeInput() {
-        if (enterPressed) enterPressed = true;
+        if (justPressed(keyboard.isEnterPressed() || controller.isEnterPressed(), prevEnter)) {
+            gp.gameState = gp.playState;
+        }
     }
 
     private void handleMapInput() {
-        if (enterPressed) gp.gameState = gp.playState;
+        if (justPressed(keyboard.isEnterPressed() || controller.isEnterPressed(), prevEnter)) {
+            gp.gameState = gp.playState;
+        }
     }
 }

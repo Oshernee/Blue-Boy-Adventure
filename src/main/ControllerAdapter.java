@@ -86,15 +86,26 @@ public class ControllerAdapter implements Controls {
         pausePressed = characterPressed = mapPressed = escapePressed = false;
     }
 
-    @Override public boolean isUpPressed() { return upPressed; }
-    @Override public boolean isDownPressed() { return downPressed; }
-    @Override public boolean isLeftPressed() { return leftPressed; }
-    @Override public boolean isRightPressed() { return rightPressed; }
-    @Override public boolean isEnterPressed() { return enterPressed; }
-    @Override public boolean isShotPressed() { return shotPressed; }
-    @Override public boolean isSpacePressed() { return spacePressed; }
-    @Override public boolean isPausePressed() { return pausePressed; }
-    @Override public boolean isCharacterPressed() { return characterPressed; }
-    @Override public boolean isMapPressed() { return mapPressed; }
-    @Override public boolean isEscapePressed() { return escapePressed; }
+    @Override
+    public boolean isUpPressed() { return upPressed; }
+    @Override
+    public boolean isDownPressed() { return downPressed; }
+    @Override
+    public boolean isLeftPressed() { return leftPressed; }
+    @Override
+    public boolean isRightPressed() { return rightPressed; }
+    @Override
+    public boolean isEnterPressed() { return enterPressed; }
+    @Override
+    public boolean isShotPressed() { return shotPressed; }
+    @Override
+    public boolean isSpacePressed() { return spacePressed; }
+    @Override
+    public boolean isPausePressed() { return pausePressed; }
+    @Override
+    public boolean isCharacterPressed() { return characterPressed; }
+    @Override
+    public boolean isMapPressed() { return mapPressed; }
+    @Override
+    public boolean isEscapePressed() { return escapePressed; }
 }
