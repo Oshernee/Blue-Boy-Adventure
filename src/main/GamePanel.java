@@ -48,8 +48,11 @@ public class GamePanel extends JPanel implements Runnable{
     public TileManager tileM = new TileManager(this);
     public KeyHandler keyH = new KeyHandler(this);
     public EventHandler eHandler = new EventHandler(this);
-    Sound music = new Sound(); // Created 2 different objects for Sound Effect and Music. If you use 1 object SE or Music stops sometimes.
-    Sound se = new Sound();
+
+    private Sound music = new Sound();
+    private Sound se = new Sound();
+    public AudioFacade audioManager = new AudioFacade(music, se);
+
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter  aSetter = new AssetSetter(this);
     public UI ui = new UI(this);
@@ -129,7 +132,7 @@ public class GamePanel extends JPanel implements Runnable{
     }
     public void resetGame(boolean restart)
     {
-        stopMusic();
+        audioManager.stopBackgroundMusic();
         currentArea = outside;
         removeTempEntity();
         bossBattleOn = false;
@@ -567,43 +570,13 @@ public class GamePanel extends JPanel implements Runnable{
             g2.dispose();
         }
     }*/
-
-    public void playMusic(int i)
-    {
-        music.setFile(i);
-        music.play();
-        music.loop();
-    }
-    public void stopMusic()
-    {
-        music.stop();
-    }
-    public void playSE(int i) // Sound effect, dont need loop
-    {
-        se.setFile(i);
-        se.play();
-    }
     public void changeArea()
     {
         if(nextArea != currentArea)
         {
-            stopMusic();
-
-            if(nextArea == outside)
-            {
-                playMusic(0);
-            }
-            if(nextArea == indoor)
-            {
-                playMusic(18);
-            }
-            if(nextArea == dungeon)
-            {
-                playMusic(19);
-            }
+            audioManager.playAreaMusic(nextArea, outside, indoor, dungeon);
             aSetter.setNPC(); //reset for at the dungeon puzzle's stuck rocks.
         }
-
         currentArea = nextArea;
         aSetter.setMonster();
     }

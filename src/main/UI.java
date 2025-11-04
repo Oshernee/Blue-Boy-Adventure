@@ -96,7 +96,7 @@ public class UI {
 
             if(charIndex < characters.length)
             {
-                gp.playSE(17);//Speak sound
+                gp.audioManager.playSoundEffect(17);//Speak sound
                 String s = String.valueOf(characters[charIndex]);
                 combinedText = combinedText + s; //every loop add one character to combinedText
                 currentDialogue = combinedText;
@@ -1047,13 +1047,13 @@ public class UI {
         //MUSIC VOLUME
         textY += gp.tileSize;
         g2.drawRect(textX,textY,120, 24); //120/5 = 24px = 1 scale
-        int volumeWidth = 24 * gp.music.volumeScale;
+        int volumeWidth = 24 * gp.audioManager.getMusicVolume();
         g2.fillRect(textX,textY,volumeWidth,24);
 
         //SE VOLUME
         textY += gp.tileSize;
         g2.drawRect(textX,textY,120, 24);
-        volumeWidth = 24 * gp.se.volumeScale;
+        volumeWidth = 24 * gp.audioManager.getSoundEffectVolume();
         g2.fillRect(textX,textY,volumeWidth,24);
 
         //SAVE OPTIONS
@@ -1153,7 +1153,7 @@ public class UI {
                 gp.ui.titleScreenState = 0;
                 gp.gameState = gp.titleState;
                 gp.resetGame(true);
-                gp.stopMusic();
+                gp.audioManager.stopBackgroundMusic();
             }
         }
 

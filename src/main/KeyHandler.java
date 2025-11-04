@@ -94,8 +94,7 @@ public class KeyHandler implements KeyListener {
                     //LOAD GAME
                     gp.saveLoad.load();
                     gp.gameState = gp.playState;
-                    gp.playMusic(0);
-
+                    gp.audioManager.playBackgroundMusic(0);
                 }
                 if (gp.ui.commandNum == 2) {
                     System.exit(0);
@@ -122,19 +121,19 @@ public class KeyHandler implements KeyListener {
                 if (gp.ui.commandNum == 0) {
                     System.out.println("Do some fighter specific stuff!");
                     gp.gameState = gp.playState;
-                    gp.playMusic(0);
+                    gp.audioManager.playBackgroundMusic(0);
                 }
                 //THIEF
                 if (gp.ui.commandNum == 1) {
                     System.out.println("Do some thief specific stuff!");
                     gp.gameState = gp.playState;
-                    gp.playMusic(0);
+                    gp.audioManager.playBackgroundMusic(0);
                 }
                 //SORCERER
                 if (gp.ui.commandNum == 2) {
                     System.out.println("Do some sorcerer specific stuff!");
                     gp.gameState = gp.playState;
-                    gp.playMusic(0);
+                    gp.audioManager.playBackgroundMusic(0);
                 }
                 //BACK
                 if (gp.ui.commandNum == 3) {
@@ -280,7 +279,7 @@ public class KeyHandler implements KeyListener {
         if(code == KeyEvent.VK_W)
         {
             gp.ui.commandNum--;
-            gp.playSE(9);
+            gp.audioManager.playSoundEffect(9);
             if(gp.ui.commandNum < 0)
             {
                 gp.ui.commandNum = maxCommandNum;
@@ -289,7 +288,7 @@ public class KeyHandler implements KeyListener {
         if(code == KeyEvent.VK_S)
         {
             gp.ui.commandNum++;
-            gp.playSE(9);
+            gp.audioManager.playSoundEffect(9);
             if(gp.ui.commandNum > maxCommandNum)
             {
                 gp.ui.commandNum = 0;
@@ -299,16 +298,15 @@ public class KeyHandler implements KeyListener {
         {
             if(gp.ui.subState == 0)
             {
-                if(gp.ui.commandNum == 1 && gp.music.volumeScale > 0) //music
+                if(gp.ui.commandNum == 1 && gp.audioManager.getMusicVolume() > 0) //music
                 {
-                    gp.music.volumeScale--;
-                    gp.music.checkVolume();  //check for music maybe a song is already being played, but you dont need it for SE, when set a sound checkVolume will be execute.
-                    gp.playSE(9);
+                    gp.audioManager.setMusicVolume(gp.audioManager.getMusicVolume() - 1);
+                    gp.audioManager.playSoundEffect(9);
                 }
-                if(gp.ui.commandNum == 2 && gp.se.volumeScale > 0) //SE
+                if(gp.ui.commandNum == 2 && gp.audioManager.getSoundEffectVolume() > 0) //SE
                 {
-                    gp.se.volumeScale--;
-                    gp.playSE(9);
+                    gp.audioManager.setSoundEffectVolume(gp.audioManager.getSoundEffectVolume() - 1);
+                    gp.audioManager.playSoundEffect(9);
                 }
             }
         }
@@ -316,16 +314,15 @@ public class KeyHandler implements KeyListener {
         {
             if(gp.ui.subState == 0)
             {
-                if(gp.ui.commandNum == 1 && gp.music.volumeScale < 5) //music
+                if(gp.ui.commandNum == 1 && gp.audioManager.getMusicVolume() < 5) //music
                 {
-                    gp.music.volumeScale++;
-                    gp.music.checkVolume();
-                    gp.playSE(9);
+                    gp.audioManager.setMusicVolume(gp.audioManager.getMusicVolume() + 1);
+                    gp.audioManager.playSoundEffect(9);
                 }
-                if(gp.ui.commandNum == 2 && gp.se.volumeScale < 5) //SE
+                if(gp.ui.commandNum == 2 && gp.audioManager.getSoundEffectVolume() < 5) //SE
                 {
-                    gp.se.volumeScale++;
-                    gp.playSE(9);
+                    gp.audioManager.setSoundEffectVolume(gp.audioManager.getSoundEffectVolume() + 1);
+                    gp.audioManager.playSoundEffect(9);
                 }
             }
         }
@@ -339,7 +336,7 @@ public class KeyHandler implements KeyListener {
             {
                 gp.ui.commandNum = 1;
             }
-            gp.playSE(9);
+            gp.audioManager.playSoundEffect(9);
         }
         if(code == KeyEvent.VK_S)
         {
@@ -348,7 +345,7 @@ public class KeyHandler implements KeyListener {
             {
                 gp.ui.commandNum = 0;
             }
-            gp.playSE(9);
+            gp.audioManager.playSoundEffect(9);
         }
         if(code == KeyEvent.VK_ENTER)
         {
@@ -356,7 +353,7 @@ public class KeyHandler implements KeyListener {
             {
                 gp.gameState = gp.playState;
                 gp.resetGame(false);
-                gp.playMusic(0);
+                gp.audioManager.playBackgroundMusic(0);
             }
             else if(gp.ui.commandNum == 1) //QUIT, reset everything
             {
@@ -381,7 +378,7 @@ public class KeyHandler implements KeyListener {
                 {
                     gp.ui.commandNum = 2;
                 }
-                gp.playSE(9);
+                gp.audioManager.playSoundEffect(9);
             }
             if(code == KeyEvent.VK_S)
             {
@@ -390,7 +387,7 @@ public class KeyHandler implements KeyListener {
                 {
                     gp.ui.commandNum = 0;
                 }
-                gp.playSE(9);
+                gp.audioManager.playSoundEffect(9);
             }
         }
         if(gp.ui.subState == 1)
@@ -412,10 +409,10 @@ public class KeyHandler implements KeyListener {
     }
     public void mapState(int code)
     {
-       if(code == KeyEvent.VK_M)
-       {
-           gp.gameState = gp.playState;
-       }
+        if(code == KeyEvent.VK_M)
+        {
+            gp.gameState = gp.playState;
+        }
     }
     public void playerInventory(int code)
     {
@@ -424,7 +421,7 @@ public class KeyHandler implements KeyListener {
             if(gp.ui.playerSlotRow != 0)
             {
                 gp.ui.playerSlotRow--;
-                gp.playSE(9);   //cursor.wav
+                gp.audioManager.playSoundEffect(9);   //cursor.wav
             }
         }
         if(code == KeyEvent.VK_A)
@@ -432,7 +429,7 @@ public class KeyHandler implements KeyListener {
             if(gp.ui.playerSlotCol !=0)
             {
                 gp.ui.playerSlotCol--;
-                gp.playSE(9);
+                gp.audioManager.playSoundEffect(9);
             }
         }
         if(code == KeyEvent.VK_S)
@@ -440,7 +437,7 @@ public class KeyHandler implements KeyListener {
             if(gp.ui.playerSlotRow != 3)
             {
                 gp.ui.playerSlotRow++;
-                gp.playSE(9);
+                gp.audioManager.playSoundEffect(9);
             }
         }
         if(code == KeyEvent.VK_D)
@@ -448,7 +445,7 @@ public class KeyHandler implements KeyListener {
             if(gp.ui.playerSlotCol != 4)
             {
                 gp.ui.playerSlotCol++;
-                gp.playSE(9);
+                gp.audioManager.playSoundEffect(9);
             }
         }
     }
@@ -459,7 +456,7 @@ public class KeyHandler implements KeyListener {
             if(gp.ui.npcSlotRow != 0)
             {
                 gp.ui.npcSlotRow--;
-                gp.playSE(9);   //cursor.wav
+                gp.audioManager.playSoundEffect(9);   //cursor.wav
             }
         }
         if(code == KeyEvent.VK_A)
@@ -467,7 +464,7 @@ public class KeyHandler implements KeyListener {
             if(gp.ui.npcSlotCol !=0)
             {
                 gp.ui.npcSlotCol--;
-                gp.playSE(9);
+                gp.audioManager.playSoundEffect(9);
             }
         }
         if(code == KeyEvent.VK_S)
@@ -475,7 +472,7 @@ public class KeyHandler implements KeyListener {
             if(gp.ui.npcSlotRow != 3)
             {
                 gp.ui.npcSlotRow++;
-                gp.playSE(9);
+                gp.audioManager.playSoundEffect(9);
             }
         }
         if(code == KeyEvent.VK_D)
@@ -483,7 +480,7 @@ public class KeyHandler implements KeyListener {
             if(gp.ui.npcSlotCol != 4)
             {
                 gp.ui.npcSlotCol++;
-                gp.playSE(9);
+                gp.audioManager.playSoundEffect(9);
             }
         }
     }

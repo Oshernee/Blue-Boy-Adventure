@@ -348,7 +348,7 @@ public class Player extends Entity{
 
             if(keyH.enterPressed == true && attackCanceled == false)
             {
-                gp.playSE(7);
+                gp.audioManager.playSoundEffect(7);
                 attacking = true;
                 spriteCounter = 0;
             }
@@ -406,7 +406,7 @@ public class Player extends Entity{
 
             shotAvailableCounter = 0; //reset
 
-            gp.playSE(10);
+            gp.audioManager.playSoundEffect(10);
         }
 
         //This needs to be outside of key if statement! // If player receive damage from monster, player's gonna be invincible for a second
@@ -439,8 +439,8 @@ public class Player extends Entity{
             {
                 gp.gameState = gp.gameOverState;
                 gp.ui.commandNum =- 1; //for if you die while pressing enter
-                gp.stopMusic();
-                gp.playSE(12);
+                gp.audioManager.stopBackgroundMusic();
+                gp.audioManager.playSoundEffect(12);
             }
         }
     }
@@ -472,7 +472,7 @@ public class Player extends Entity{
                 if(canObtainItem(gp.obj[gp.currentMap][i]) == true) //if inventory is not full can pick up object
                 {
                     //inventory.add(gp.obj[gp.currentMap][i]); //canObtainItem() already adds item
-                    gp.playSE(1);
+                    gp.audioManager.playSoundEffect(1);
                     text = "Got a " + gp.obj[gp.currentMap][i].name + "!";
                 }
                 else
@@ -503,7 +503,7 @@ public class Player extends Entity{
         {
             if(invincible == false && gp.monster[gp.currentMap][i].dying == false)
             {
-                gp.playSE(6);  //receivedamage.wav
+                gp.audioManager.playSoundEffect(6);  //receivedamage.wav
 
                 int damage = gp.monster[gp.currentMap][i].attack - defense;
                 if(damage < 1)
@@ -522,7 +522,7 @@ public class Player extends Entity{
         {
             if(gp.monster[gp.currentMap][i].invincible == false)
             {
-                gp.playSE(5);   //hitmonster.wav
+                gp.audioManager.playSoundEffect(5);   //hitmonster.wav
 
                 if(knockBackPower > 0)
                 {
@@ -599,7 +599,7 @@ public class Player extends Entity{
              dexterity++;
              attack = getAttack();
              defense = getDefense();
-             gp.playSE(8); //levelup.wav
+             gp.audioManager.playSoundEffect(8); //levelup.wav
 
              dialogues[0][0] = "You are level " + level + " now!\n" + "You feel stronger!";
              setDialogue();

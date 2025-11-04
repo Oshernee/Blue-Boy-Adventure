@@ -28,11 +28,11 @@ public class Config {
             bw.newLine();
 
             //Music Volume
-            bw.write(String.valueOf(gp.music.volumeScale));
+            bw.write(String.valueOf(gp.audioManager.getMusicVolume()));
             bw.newLine();
 
             //SE Volume
-            bw.write(String.valueOf(gp.se.volumeScale));
+            bw.write(String.valueOf(gp.audioManager.getSoundEffectVolume()));
             bw.newLine();
 
             bw.close();
@@ -61,11 +61,11 @@ public class Config {
 
             //Music Volume
             s = br.readLine();
-            gp.music.volumeScale = Integer.parseInt(s);
+            gp.audioManager.setMusicVolume(Integer.parseInt(s));
 
             //SE Volume
             s = br.readLine();
-            gp.se.volumeScale = Integer.parseInt(s);
+            gp.audioManager.setSoundEffectVolume(Integer.parseInt(s));
 
             br.close();
 

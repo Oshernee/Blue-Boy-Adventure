@@ -665,7 +665,7 @@ public class Entity {
                 if(gp.player.guardCounter < 10)
                 {
                     damage = 0;
-                    gp.playSE(16);
+                    gp.audioManager.playSoundEffect(16);
                     setKnockBack(this, gp.player, knockBackPower); //Knockback attacker //You can use shield's knockBackPower!
                     offBalance = true;
                     spriteCounter =- 60; //Attacker's sprites returns to motion1//like a stun effect
@@ -674,13 +674,13 @@ public class Entity {
                 {
                     //Normal Guard
                     damage /= 2;
-                    gp.playSE(15);
+                    gp.audioManager.playSoundEffect(15);
                 }
             }
             else
             {
                 //Not guarding
-                gp.playSE(6);   //receivedamage.wav
+                gp.audioManager.playSoundEffect(6);   //receivedamage.wav
                 if(damage < 1 )
                 {
                     damage = 1;
