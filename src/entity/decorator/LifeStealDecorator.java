@@ -3,43 +3,59 @@ package entity.decorator;
 import entity.Entity;
 
 public class LifeStealDecorator extends EquipmentDecorator {
-    
-    private int lifeStealPercent;
-    
+
+    private final int siphonPercent;
+    private final int regenBonus;
+    private final int mitigationBonus;
+    private final int damageAmpBonus;
+
     public LifeStealDecorator(Entity equipment, int lifeStealPercent) {
-        super(equipment);
-        this.lifeStealPercent = lifeStealPercent;
-
-        updateDescription();
-
-        this.price = (int)(baseEquipment.price * 2.0);
+        this(equipment, lifeStealPercent, 1);
     }
-    
-    private void updateDescription() {
-        String baseDesc = baseEquipment.description;
-        if(baseDesc.startsWith("[")) {
-            int endBracket = baseDesc.indexOf("]");
-            if(endBracket != -1) {
-                baseDesc = baseDesc.substring(endBracket + 1);
-            }
-        }
-        
-        this.description = "[" + this.name + "]" + baseDesc + 
-                          "\n+Life Steal: " + lifeStealPercent + "%";
+
+    public LifeStealDecorator(Entity equipment, int lifeStealPercent, int level) {
+        super(equipment, 2, level); // Uses 2 slots (powerful enchantment)
+        this.siphonPercent = lifeStealPercent + (enchantmentLevel - 1) * 3; // +3% per level for meaningful scaling
+        this.regenBonus = 2 + enchantmentLevel;
+        this.mitigationBonus = 3 + (enchantmentLevel * 2);
+
+        int vampiricSynergy = hasEnchantment("HEALTH_BUFF") ? 5 : 0;
+        vampiricSynergy += hasEnchantment("ELEMENT_POISON") ? 7 : 0;
+        this.damageAmpBonus = 5 + (enchantmentLevel * 3) + vampiricSynergy;
+
+        this.lifeStealPercent = siphonPercent;
+        this.criticalChance = baseEquipment.criticalChance + (hasEnchantment("CRITICAL") ? 2 * enchantmentLevel : enchantmentLevel);
+        this.bonusDamagePercent = baseEquipment.bonusDamagePercent + damageAmpBonus;
+        this.damageMitigationPercent = baseEquipment.damageMitigationPercent + mitigationBonus;
+        this.healthRegenPerTick = baseEquipment.healthRegenPerTick + regenBonus;
+        this.statusEffectChance = baseEquipment.statusEffectChance + (3 * enchantmentLevel);
+
+        addEnchantmentTag("LIFESTEAL");
+        setDescription(
+            "Life Siphon: " + siphonPercent + "% of damage as healing",
+            "Regeneration: +" + regenBonus + " HP/tick",
+            "Blood Ward: " + mitigationBonus + "% dmg shield",
+            "Predatory Instinct: +" + damageAmpBonus + "% dmg"
+        );
+
+        this.price = (int) (baseEquipment.price * (2.15 + (enchantmentLevel * 0.45)));
     }
-    
+
     @Override
     public boolean use(Entity user) {
         boolean result = super.use(user);
-        
-        if(result && getGamePanel() != null) {
+
+        if (result && getGamePanel() != null) {
             getGamePanel().playSE(10); // blood/dark sound
+            if (user != null) {
+                user.healthRegenPerTick += regenBonus;
+            }
         }
-        
+
         return result;
     }
-    
-    public int getLifeStealPercent() {
-        return lifeStealPercent;
+
+    public int getSiphonPercent() {
+        return siphonPercent;
     }
 }

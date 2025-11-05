@@ -3,54 +3,73 @@ package entity.decorator;
 import entity.Entity;
 
 public class HealthBuffDecorator extends EquipmentDecorator {
-    
-    private int healthBonus;
-    
-    public HealthBuffDecorator(Entity equipment, int healthBonus) {
-        super(equipment);
-        this.healthBonus = healthBonus;
 
-        updateDescription();
-        
-        // Increase price
-        this.price = (int)(baseEquipment.price * 1.4);
+    private final int healthBonus;
+    private final int regenBonus;
+    private final int mitigationBonus;
+    private final int guardBonus;
+
+    public HealthBuffDecorator(Entity equipment, int healthBonus) {
+        this(equipment, healthBonus, 1);
     }
-    
-    private void updateDescription() {
-        String baseDesc = baseEquipment.description;
-        if(baseDesc.startsWith("[")) {
-            int endBracket = baseDesc.indexOf("]");
-            if(endBracket != -1) {
-                baseDesc = baseDesc.substring(endBracket + 1);
-            }
+
+    public HealthBuffDecorator(Entity equipment, int healthBonus, int level) {
+        super(equipment, 1, level); // Uses 1 slot
+        this.healthBonus = healthBonus + (enchantmentLevel - 1) * 3; // +3 HP per level
+        this.regenBonus = 2 + (enchantmentLevel / 2);
+        this.mitigationBonus = 4 + (enchantmentLevel * 2);
+        this.guardBonus = 6 + (enchantmentLevel * 3);
+
+        this.lifeStealPercent = baseEquipment.lifeStealPercent;
+        this.criticalChance = baseEquipment.criticalChance;
+        this.healthRegenPerTick = baseEquipment.healthRegenPerTick + regenBonus;
+        this.damageMitigationPercent = baseEquipment.damageMitigationPercent + mitigationBonus;
+        this.guardStrength = baseEquipment.guardStrength + guardBonus;
+
+        if (hasEnchantment("DEFENSE_BUFF")) {
+            this.damageMitigationPercent += enchantmentLevel * 2;
         }
-        
-        this.description = "[" + this.name + "]" + baseDesc + 
-                          "\n+Max HP: +" + healthBonus;
+
+        addEnchantmentTag("HEALTH_BUFF");
+        setDescription(
+            "+Max HP: +" + healthBonus,
+            "Regeneration: +" + regenBonus + " HP/tick",
+            "Damage Buffer: " + mitigationBonus + "%",
+            "Fortitude: +" + guardBonus + " guard"
+        );
+
+        this.price = (int) (baseEquipment.price * (1.48 + (enchantmentLevel * 0.26)));
     }
-    
+
     // This method can be called manually to apply the buff
     public void applyBuff(Entity user) {
+        if (user == null) {
+            return;
+        }
         user.maxLife += healthBonus;
         user.life += healthBonus;
-        
-        if(getGamePanel() != null) {
+        user.healthRegenPerTick += regenBonus;
+        user.damageMitigationPercent += mitigationBonus;
+
+        if (getGamePanel() != null) {
             getGamePanel().playSE(2);
-            getGamePanel().ui.addMessage("Max HP +" + healthBonus + "!");
+            if (getGamePanel().ui != null) {
+                getGamePanel().ui.addMessage("Vitality increased by " + healthBonus + "!");
+            }
         }
     }
-    
+
     @Override
     public boolean use(Entity user) {
         boolean result = super.use(user);
-        
-        if(result) {
+
+        if (result) {
             applyBuff(user);
         }
-        
+
         return result;
     }
-    
+
     public int getHealthBonus() {
         return healthBonus;
     }

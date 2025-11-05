@@ -450,32 +450,6 @@ public class KeyHandler implements KeyListener {
                 gp.ui.subState = 0;
             }
         }
-        if(gp.ui.subState == 2)
-        {
-            if(code == KeyEvent.VK_W)
-            {
-                gp.ui.commandNum--;
-                if(gp.ui.commandNum < 0)
-                {
-                    gp.ui.commandNum = 7;
-                }
-                gp.playSE(9);
-            }
-            if(code == KeyEvent.VK_S)
-            {
-                gp.ui.commandNum++;
-                if(gp.ui.commandNum > 7)
-                {
-                    gp.ui.commandNum = 0;
-                }
-                gp.playSE(9);
-            }
-            if(code == KeyEvent.VK_ESCAPE)
-            {
-                gp.ui.subState = 1;
-                gp.ui.commandNum = 0;
-            }
-        }
     }
     public void mapState(int code)
     {

@@ -117,6 +117,21 @@ public class Entity {
     public int lifeStealPercent = 0;
     public int criticalChance = 0;
     public boolean criticalHit = false;
+    public int bonusDamagePercent = 0;
+    public int bonusCritDamagePercent = 0;
+    public int damageMitigationPercent = 0;
+    public int elementalResistPercent = 0;
+    public int manaRegenPerTick = 0;
+    public int healthRegenPerTick = 0;
+    public int speedPercent = 0;
+    public int statusEffectChance = 0;
+    public int guardStrength = 0;
+    
+    // Enchantment system attributes
+    public Entity originalItem; // Store reference to unwrapped base item
+    public int enchantmentSlots = 3; // Default 3 slots
+    public int usedEnchantmentSlots = 0;
+    public ArrayList<String> appliedEnchantments = new ArrayList<>();
 
     public Entity(GamePanel gp)
     {
@@ -682,18 +697,15 @@ public class Entity {
                 else
                 {
                     //Normal Guard
-                    damage /= 2;
                     gp.playSE(15);
+                    damage = gp.player.mitigateIncomingDamage(Math.max(1, damage), true);
                 }
             }
             else
             {
                 //Not guarding
                 gp.playSE(6);   //receivedamage.wav
-                if(damage < 1 )
-                {
-                    damage = 1;
-                }
+                damage = gp.player.mitigateIncomingDamage(Math.max(1, damage), false);
             }
             if(damage != 0)
             {
@@ -977,5 +989,4 @@ public class Entity {
         }
         return  index;
     }
-    public Entity originalItem; // Store reference to unwrapped base item
 }
