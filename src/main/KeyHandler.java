@@ -1,7 +1,22 @@
 package main;
 
-public class KeyHandler {
+import commands.AttackCommand;
+import commands.CastSpellCommand;
+import commands.Command;
+import commands.MoveDownCommand;
+import commands.MoveLeftCommand;
+import commands.MoveRightCommand;
+import commands.MoveUpCommand;
+import java.awt.event.KeyAdapter;
 
+public class KeyHandler extends KeyAdapter {
+
+    private final Command attackCommand = new AttackCommand();
+    private final Command castSpellCommand = new CastSpellCommand();
+    private final Command moveUpCommand = new MoveUpCommand();
+    private final Command moveDownCommand = new MoveDownCommand();
+    private final Command moveLeftCommand = new MoveLeftCommand();
+    private final Command moveRightCommand = new MoveRightCommand();
     private final Controls keyboard;
     private final Controls controller;
     private final GamePanel gp;
@@ -10,6 +25,7 @@ public class KeyHandler {
     private boolean prevPause, prevCharacter, prevMap, prevEscape;
     private boolean prevLeft, prevRight;
     private boolean prevUp, prevDown, prevEnter;
+    private boolean prevShot, prevSpace;
     public boolean showDebugText = false;
     public boolean godModeOn = false;
 
@@ -19,7 +35,7 @@ public class KeyHandler {
         this.controller = new ControllerAdapter();
         gp.addKeyListener((KeyboardAdapter) keyboard);
     }
-
+    
     private boolean justPressed(boolean current, boolean previous) {
         return current && !previous;
     }
@@ -67,6 +83,8 @@ public class KeyHandler {
         prevLeft = leftPressed;
         prevRight = rightPressed;
         prevEnter = enterPressed;
+        prevShot = shotKeyPressed;
+        prevSpace = spacePressed;
         prevPause = pausePressed;
         prevCharacter = characterPressed;
         prevMap = mapPressed;
@@ -78,7 +96,6 @@ public class KeyHandler {
         boolean down = justPressed(downPressed, prevDown);
         boolean enter = justPressed(enterPressed, prevEnter);
 
-        // --- Main title screen ---
         if (gp.ui.titleScreenState == 0) {
             if (up) {
                 gp.ui.commandNum--;
@@ -104,7 +121,6 @@ public class KeyHandler {
             }
         }
 
-        // --- Class selection screen ---
         else if (gp.ui.titleScreenState == 1) {
             int maxClasses = 3; // Fighter, Thief, Sorcerer, Back (0–3)
 
@@ -140,6 +156,23 @@ public class KeyHandler {
         if (justPressed(characterPressed, prevCharacter)) gp.gameState = gp.characterState;
         if (justPressed(mapPressed, prevMap)) gp.gameState = gp.mapState;
         if (justPressed(escapePressed, prevEscape)) gp.gameState = gp.optionsState;
+
+        if (upPressed) {
+            moveUpCommand.execute(gp.player);
+        } else if (downPressed) {
+            moveDownCommand.execute(gp.player);
+        } else if (leftPressed) {
+            moveLeftCommand.execute(gp.player);
+        } else if (rightPressed) {
+            moveRightCommand.execute(gp.player);
+        }
+
+        if (justPressed(enterPressed, prevEnter)) {
+            attackCommand.execute(gp.player);
+        }
+        if (justPressed(shotKeyPressed, prevShot)) {
+            castSpellCommand.execute(gp.player);
+        }
     }
 
     private void handlePauseInput() {
