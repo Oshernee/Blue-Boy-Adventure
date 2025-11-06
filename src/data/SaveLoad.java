@@ -1,8 +1,6 @@
 package data;
 
-import entity.Entity;
 import main.GamePanel;
-import object.*;
 
 import java.io.*;
 
@@ -17,8 +15,7 @@ public class SaveLoad {
 
     public void save()
     {
-        try {
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File("save.dat")));
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File("save.dat")))) {
             DataStorage ds = new DataStorage();
 
             //PLAYER STATS
@@ -75,17 +72,16 @@ public class SaveLoad {
 
             //Write the DataStorage object
             oos.writeObject(ds);
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
         }
     }
     public void load()
     {
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File("save.dat")));
-
-            //Read the DataStorage object
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File("save.dat"))))
+        {
             DataStorage ds =  (DataStorage)ois.readObject();
 
             //PLAYER STATS
@@ -109,8 +105,8 @@ public class SaveLoad {
             }
 
             //PLAYER EQUIPMENT
-            gp.player.currentWeapon = gp.player.inventory.get(ds.currentWeaponSlot);
-            gp.player.currentShield = gp.player.inventory.get(ds.currentShieldSlot);
+            gp.player.equipWeapon(gp.player.inventory.get(ds.currentWeaponSlot));
+            gp.player.equipShield(gp.player.inventory.get(ds.currentShieldSlot));
             gp.player.getAttack();
             gp.player.getDefense();
             gp.player.getAttackImage();
@@ -138,13 +134,15 @@ public class SaveLoad {
                         {
                             gp.obj[mapNum][i].down1 = gp.obj[mapNum][i].image2;
                         }
-                        gp.obj[mapNum][i].setDialogue(); // added this line
+                        gp.obj[mapNum][i].setDialogue();
                     }
 
                 }
             }
-        } catch (Exception e) {
-            System.out.println("Load Exception!");
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
         }
     }
 }

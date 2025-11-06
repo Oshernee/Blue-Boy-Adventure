@@ -67,6 +67,11 @@ public class KeyHandler implements KeyListener {
         {
             mapState(code);
         }
+        // ENCHANT STATE
+        else if(gp.gameState == gp.enchantState)
+        {
+            enchantState(code);
+        }
     }
 
     public void titleState(int code)
@@ -402,6 +407,42 @@ public class KeyHandler implements KeyListener {
             }
         }
         if(gp.ui.subState == 2)
+        {
+            playerInventory(code);
+            if(code == KeyEvent.VK_ESCAPE)
+            {
+                gp.ui.subState = 0;
+            }
+        }
+    }
+    public void enchantState(int code)
+    {
+        if(code == KeyEvent.VK_ENTER)
+        {
+            enterPressed = true;
+        }
+        if(gp.ui.subState == 0)
+        {
+            if(code == KeyEvent.VK_W)
+            {
+                gp.ui.commandNum--;
+                if(gp.ui.commandNum < 0)
+                {
+                    gp.ui.commandNum = 1;
+                }
+                gp.playSE(9);
+            }
+            if(code == KeyEvent.VK_S)
+            {
+                gp.ui.commandNum++;
+                if(gp.ui.commandNum > 1)
+                {
+                    gp.ui.commandNum = 0;
+                }
+                gp.playSE(9);
+            }
+        }
+        if(gp.ui.subState == 1)
         {
             playerInventory(code);
             if(code == KeyEvent.VK_ESCAPE)

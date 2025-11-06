@@ -12,7 +12,7 @@ import java.util.Random;
 
 public class Entity {
 
-    GamePanel gp;
+    protected GamePanel gp;
     public BufferedImage up1,up2,down1,down2,left1,left2,right1,right2;
     public BufferedImage attackUp1,attackUp2,attackDown1,attackDown2,attackLeft1,attackLeft2,attackRight1,attackRight2,guardUp,guardDown,guardLeft,guardRight;
     public BufferedImage image, image2, image3;
@@ -113,10 +113,34 @@ public class Entity {
     public final int type_light = 9;
     public final int type_pickaxe = 10;
 
+    // Add these new attributes for decorator effects
+    public int lifeStealPercent = 0;
+    public int criticalChance = 0;
+    public boolean criticalHit = false;
+    public int bonusDamagePercent = 0;
+    public int bonusCritDamagePercent = 0;
+    public int damageMitigationPercent = 0;
+    public int elementalResistPercent = 0;
+    public int manaRegenPerTick = 0;
+    public int healthRegenPerTick = 0;
+    public int speedPercent = 0;
+    public int statusEffectChance = 0;
+    public int guardStrength = 0;
+    
+    // Enchantment system attributes
+    public Entity originalItem; // Store reference to unwrapped base item
+    public int enchantmentSlots = 3; // Default 3 slots
+    public int usedEnchantmentSlots = 0;
+    public ArrayList<String> appliedEnchantments = new ArrayList<>();
+
     public Entity(GamePanel gp)
     {
         this.gp = gp;
 
+    }
+    public GamePanel getGp()
+    {
+        return gp;
     }
     public int getScreenX()
     {
@@ -673,18 +697,15 @@ public class Entity {
                 else
                 {
                     //Normal Guard
-                    damage /= 2;
                     gp.playSE(15);
+                    damage = gp.player.mitigateIncomingDamage(Math.max(1, damage), true);
                 }
             }
             else
             {
                 //Not guarding
                 gp.playSE(6);   //receivedamage.wav
-                if(damage < 1 )
-                {
-                    damage = 1;
-                }
+                damage = gp.player.mitigateIncomingDamage(Math.max(1, damage), false);
             }
             if(damage != 0)
             {

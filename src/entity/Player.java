@@ -1,12 +1,15 @@
 package entity;
 
+import entity.equipment.EquipmentStats;
+import entity.equipment.ShieldSlot;
+import entity.equipment.StatProvider;
+import entity.equipment.WeaponSlot;
 import main.GamePanel;
 import main.KeyHandler;
 import object.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
 
 public class Player extends Entity{
@@ -17,6 +20,12 @@ public class Player extends Entity{
     int standCounter = 0;
     public boolean attackCanceled = false;
     public boolean lightUpdated = false;
+    private WeaponSlot weaponSlot;
+    private ShieldSlot shieldSlot;
+    private final int baseMoveSpeed = 4;
+    private static final float HEALTH_REGEN_SECONDS_PER_POINT = 30f;
+    private float healthRegenProgress;
+    private float manaRegenProgress;
 
     public Player(GamePanel gp, KeyHandler keyH)
     {
@@ -48,13 +57,8 @@ public class Player extends Entity{
         gp.currentMap = 0;
         gp.currentArea = gp.outside;
 
-        //Blue Gem Start Position, mapNum = 3;
-//         worldX = gp.tileSize *25;
-//        worldY = gp.tileSize * 9;
-//        gp.currentMap = 3;
-
-        defaultSpeed = 4;
-        speed = defaultSpeed;
+    defaultSpeed = baseMoveSpeed;
+    speed = defaultSpeed;
         direction = "down";
 
         //PLAYER STATUS
@@ -64,26 +68,77 @@ public class Player extends Entity{
         maxMana = 8;
         mana = maxMana;
         ammo = 10;
-        strength = 1;           // The more strenght he has, the more damage he gives.
-        dexterity = 1;          // The more dexterity he has, the less damage he receives.
+        strength = 1;
+        dexterity = 1;
         exp = 0;
         nextLevelExp = 4;
         coin = 40;
-        invincible = false;
-        currentWeapon = new OBJ_Sword_Normal(gp);
-        currentShield = new OBJ_Shield_Wood(gp);
+    invincible = false;
+
+    weaponSlot = new WeaponSlot(null);
+    shieldSlot = new ShieldSlot(null);
+
+    equipWeapon(new OBJ_Sword_Normal(gp));
+    equipShield(new OBJ_Shield_Wood(gp));
+
+    applyStartingBuffs();
+
+    healthRegenProgress = 0f;
+    manaRegenProgress = 0f;
+        
         currentLight = null;
         projectile = new OBJ_Fireball(gp);
-        //projectile = new OBJ_Rock(gp);
-        attack = getAttack();   // The total attack value is decided by strength and weapon
-        defense = getDefense(); // The total defense value is decided by dexterity and shield
+        attack = getAttack();
+        defense = getDefense();
 
         getImage();
         getAttackImage();
         getGuardImage();
         setItems();
-        //setDialogue();
     }
+    
+    /**
+     * Apply enchantment buffs to starting equipment
+     */
+    private void applyStartingBuffs() {
+        Entity buffedWeapon = entity.decorator.EquipmentBuilder.create(currentWeapon)
+            .asCommon()
+            .build();
+        equipWeapon(buffedWeapon);
+    }
+
+    public WeaponSlot getWeaponSlot() {
+        return weaponSlot;
+    }
+
+    public ShieldSlot getShieldSlot() {
+        return shieldSlot;
+    }
+
+    public void equipWeapon(Entity weapon) {
+        weaponSlot.equip(weapon);
+        currentWeapon = weaponSlot.getEquippedEntity();
+        recalculateCombatSnapshot();
+    }
+
+    public void equipWeapon(StatProvider provider) {
+        weaponSlot.setStatProvider(provider);
+        currentWeapon = weaponSlot.getEquippedEntity();
+        recalculateCombatSnapshot();
+    }
+
+    public void equipShield(Entity shield) {
+        shieldSlot.equip(shield);
+        currentShield = shieldSlot.getEquippedEntity();
+        recalculateCombatSnapshot();
+    }
+
+    public void equipShield(StatProvider provider) {
+        shieldSlot.setStatProvider(provider);
+        currentShield = shieldSlot.getEquippedEntity();
+        recalculateCombatSnapshot();
+    }
+    
     public void setDefaultPositions()
     {
         gp.currentMap = 0;
@@ -106,6 +161,9 @@ public class Player extends Entity{
         guarding = false;
         knockBack = false;
         lightUpdated = true;
+        healthRegenProgress = 0f;
+        manaRegenProgress = 0f;
+        recalculateCombatSnapshot();
     }
 
     public void setItems()
@@ -125,15 +183,134 @@ public class Player extends Entity{
 
     public int getAttack()
     {
-        attackArea = currentWeapon.attackArea;
-        motion1_duration = currentWeapon.motion1_duration;
-        motion2_duration = currentWeapon.motion2_duration;
-        return attack = strength * currentWeapon.attackValue;
+        EquipmentStats weaponStats = weaponSlot.getStats();
+        EquipmentStats shieldStats = shieldSlot.getStats();
+
+        updateAggregatedEquipmentStats(weaponStats, shieldStats);
+
+        attackArea = weaponStats.getAttackArea();
+        motion1_duration = weaponStats.getMotion1Duration();
+        motion2_duration = weaponStats.getMotion2Duration();
+
+        currentWeapon = weaponSlot.getEquippedEntity();
+
+        int baseAttack = strength * weaponStats.getAttackValue();
+        float damageMultiplier = 1f + (bonusDamagePercent / 100f);
+        int effectiveAttack = Math.max(1, Math.round(baseAttack * damageMultiplier));
+
+        attack = effectiveAttack;
+        return attack;
     }
 
     public int getDefense()
     {
-        return defense = dexterity * currentShield.defenseValue;
+        EquipmentStats weaponStats = weaponSlot.getStats();
+        EquipmentStats shieldStats = shieldSlot.getStats();
+
+        updateAggregatedEquipmentStats(weaponStats, shieldStats);
+
+        currentShield = shieldSlot.getEquippedEntity();
+
+        int baseDefense = dexterity * shieldStats.getDefenseValue();
+        defense = Math.max(1, baseDefense);
+        return defense;
+    }
+
+    private void updateAggregatedEquipmentStats(EquipmentStats weaponStats, EquipmentStats shieldStats) {
+        this.lifeStealPercent = weaponStats.getLifeStealPercent() + shieldStats.getLifeStealPercent();
+        this.criticalChance = weaponStats.getCriticalChance() + shieldStats.getCriticalChance();
+        this.bonusDamagePercent = weaponStats.getBonusDamagePercent() + shieldStats.getBonusDamagePercent();
+        this.bonusCritDamagePercent = weaponStats.getBonusCritDamagePercent() + shieldStats.getBonusCritDamagePercent();
+        this.damageMitigationPercent = weaponStats.getDamageMitigationPercent() + shieldStats.getDamageMitigationPercent();
+        this.elementalResistPercent = weaponStats.getElementalResistPercent() + shieldStats.getElementalResistPercent();
+        this.manaRegenPerTick = weaponStats.getManaRegenPerTick() + shieldStats.getManaRegenPerTick();
+        this.healthRegenPerTick = weaponStats.getHealthRegenPerTick() + shieldStats.getHealthRegenPerTick();
+        this.speedPercent = weaponStats.getSpeedPercent() + shieldStats.getSpeedPercent();
+        this.statusEffectChance = weaponStats.getStatusEffectChance() + shieldStats.getStatusEffectChance();
+        this.guardStrength = weaponStats.getGuardStrength() + shieldStats.getGuardStrength();
+        this.knockBackPower = Math.max(weaponStats.getKnockBackPower(), shieldStats.getKnockBackPower());
+
+        recalculateMovementSpeed();
+    }
+
+    private void recalculateMovementSpeed() {
+        float multiplier = 1f + (speedPercent / 100f);
+        int modifiedSpeed = Math.max(1, Math.round(baseMoveSpeed * multiplier));
+        defaultSpeed = modifiedSpeed;
+        if (!knockBack) {
+            speed = defaultSpeed;
+        }
+    }
+
+    private void recalculateCombatSnapshot() {
+        attack = getAttack();
+        defense = getDefense();
+    }
+
+    private void applyRegeneration() {
+        if (healthRegenPerTick > 0 && life > 0 && life < maxLife) {
+            float framesPerPoint = HEALTH_REGEN_SECONDS_PER_POINT * 60f;
+            healthRegenProgress += healthRegenPerTick / framesPerPoint;
+            int healed = (int) healthRegenProgress;
+            if (healed > 0) {
+                life = Math.min(maxLife, life + healed);
+                healthRegenProgress -= healed;
+            }
+        } else if (life >= maxLife || healthRegenPerTick <= 0) {
+            healthRegenProgress = 0f;
+        }
+
+        if (manaRegenPerTick > 0 && mana < maxMana) {
+            manaRegenProgress += manaRegenPerTick / 60f;
+            int restored = (int) manaRegenProgress;
+            if (restored > 0) {
+                mana = Math.min(maxMana, mana + restored);
+                manaRegenProgress -= restored;
+            }
+        } else if (mana >= maxMana || manaRegenPerTick <= 0) {
+            manaRegenProgress = 0f;
+        }
+    }
+
+    private int applyTargetMitigation(Entity target, int damage) {
+        if (damage <= 0) {
+            return 0;
+        }
+        float mitigation = Math.max(0f, target.damageMitigationPercent / 100f);
+        float elemental = Math.max(0f, (target.elementalResistPercent / 100f) * 0.5f);
+        float reduction = Math.min(0.9f, mitigation + elemental);
+        int mitigated = Math.round(damage * (1f - reduction));
+        return Math.max(1, mitigated);
+    }
+
+    public int mitigateIncomingDamage(int baseDamage, boolean guardingActive) {
+        if (baseDamage <= 0) {
+            return 0;
+        }
+        float adjustedDamage = baseDamage;
+        if (guardingActive) {
+            float guardReduction = 0.5f - Math.min(0.4f, guardStrength / 200f);
+            guardReduction = Math.max(0.1f, guardReduction);
+            adjustedDamage *= guardReduction;
+        }
+        float mitigation = Math.max(0f, (damageMitigationPercent + (elementalResistPercent * 0.5f)) / 100f);
+        mitigation = Math.min(0.85f, mitigation);
+        adjustedDamage *= (1f - mitigation);
+        return Math.max(1, Math.round(adjustedDamage));
+    }
+
+    private void tryApplyStatusEffect(Entity attacker, Entity target, java.util.Random random) {
+        if (attacker.statusEffectChance <= 0) {
+            return;
+        }
+        int roll = random.nextInt(100) + 1;
+        if (roll <= attacker.statusEffectChance && !target.offBalance) {
+            target.offBalance = true;
+            target.offBalanceCounter = 0;
+            if (attacker == this) {
+                gp.ui.addMessage("Enemy staggered!");
+            }
+        }
     }
     public int getCurrentWeaponSlot()
     {
@@ -318,7 +495,7 @@ public class Player extends Entity{
             contactMonster(monsterIndex);
 
             //CHECK INTERACTIVE COLLISION
-            int iTileIndex = gp.cChecker.checkEntity(this, gp.iTile);
+            gp.cChecker.checkEntity(this, gp.iTile);
 
             //CHECK EVENT
             gp.eHandler.checkEvent();
@@ -425,6 +602,9 @@ public class Player extends Entity{
         {
             shotAvailableCounter++;
         }
+
+        applyRegeneration();
+
         if(life > maxLife) //for using potion, heal etc.
         {
             life = maxLife;
@@ -506,10 +686,7 @@ public class Player extends Entity{
                 gp.playSE(6);  //receivedamage.wav
 
                 int damage = gp.monster[gp.currentMap][i].attack - defense;
-                if(damage < 1)
-                {
-                    damage = 1;
-                }
+                damage = mitigateIncomingDamage(Math.max(1, damage), false);
                 life -= damage;
                 invincible = true;
                 transparent = true;
@@ -520,34 +697,82 @@ public class Player extends Entity{
     {
         if(i != 999)
         {
-            if(gp.monster[gp.currentMap][i].invincible == false)
+            Entity target = gp.monster[gp.currentMap][i];
+            if(target.invincible == false)
             {
                 gp.playSE(5);   //hitmonster.wav
 
-                if(knockBackPower > 0)
+                int effectiveKnockBack = knockBackPower;
+                if(attacker == this && weaponSlot != null)
                 {
-                    setKnockBack(gp.monster[gp.currentMap][i], attacker, knockBackPower);
+                    effectiveKnockBack = weaponSlot.getKnockBackPower();
                 }
-                if(gp.monster[gp.currentMap][i].offBalance == true)
+                if(effectiveKnockBack > 0)
                 {
-                    attack *= 2;
+                    setKnockBack(target, attacker, effectiveKnockBack);
                 }
-                int damage = attack - gp.monster[gp.currentMap][i].defense;
-                if(damage <= 0 )
+
+                java.util.Random random = new java.util.Random();
+                boolean criticalHit = false;
+                if(attacker.criticalChance > 0 || attacker.offBalance)
+                {
+                    int critRoll = random.nextInt(100) + 1;
+                    if(critRoll <= attacker.criticalChance || attacker.offBalance)
+                    {
+                        criticalHit = true;
+                        gp.playSE(16); // Play parry sound for critical
+                        gp.ui.addMessage("CRITICAL HIT!");
+                    }
+                }
+
+                float damageMultiplier = 1f;
+                if(criticalHit)
+                {
+                    float critMultiplier = 2f + (attacker.bonusCritDamagePercent / 100f);
+                    damageMultiplier *= critMultiplier;
+                }
+
+                int effectiveAttack = Math.max(1, Math.round(attack * damageMultiplier));
+
+                int damage = effectiveAttack - target.defense;
+                if(damage <= 0)
                 {
                     damage = 1;
                 }
-                gp.monster[gp.currentMap][i].life -= damage;
-                gp.ui.addMessage(damage + " damage!");
-                gp.monster[gp.currentMap][i].invincible = true;
-                gp.monster[gp.currentMap][i].damageReaction();  //run away from player
 
-                if(gp.monster[gp.currentMap][i].life <= 0)
+                damage = applyTargetMitigation(target, damage);
+
+                target.life -= damage;
+                gp.ui.addMessage(damage + " damage!");
+                target.invincible = true;
+                target.damageReaction();
+
+                tryApplyStatusEffect(attacker, target, random);
+                
+                // Apply Life Steal
+                if(attacker.lifeStealPercent > 0 && attacker == gp.player)
                 {
-                    gp.monster[gp.currentMap][i].dying = true;
-                    gp.ui.addMessage("Killed the " + gp.monster[gp.currentMap][i].name + "!");
-                    gp.ui.addMessage("Exp +" + gp.monster[gp.currentMap][i].exp + "!");
-                    exp += gp.monster[gp.currentMap][i].exp;
+                    int healAmount = Math.max(1, (int)(damage * (attacker.lifeStealPercent / 100.0)));
+                    
+                    attacker.life += healAmount;
+                    if(attacker.life > attacker.maxLife)
+                    {
+                        attacker.life = attacker.maxLife;
+                    }
+                    
+                    gp.ui.addMessage("+" + healAmount + " HP (Life Steal)");
+                    gp.playSE(2); // Powerup sound
+                    
+                    // Visual feedback - generate red particles
+                    generateParticle(target, attacker);
+                }
+
+                if(target.life <= 0)
+                {
+                    target.dying = true;
+                    gp.ui.addMessage("Killed the " + target.name + "!");
+                    gp.ui.addMessage("Exp +" + target.exp + "!");
+                    exp += target.exp;
                     checkLevelUp();
                 }
             }
@@ -616,13 +841,13 @@ public class Player extends Entity{
             if(selectedItem.type == type_sword ||
                     selectedItem.type == type_axe || selectedItem.type == type_pickaxe)
             {
-                currentWeapon = selectedItem;
+                equipWeapon(selectedItem);
                 attack = getAttack();   //update player attack
                 getAttackImage(); //update player attack image (sword/axe)
             }
             if(selectedItem.type == type_shield)
             {
-                currentShield = selectedItem;
+                equipShield(selectedItem);
                 defense = getDefense(); //update player defense
             }
             if(selectedItem.type == type_light)
